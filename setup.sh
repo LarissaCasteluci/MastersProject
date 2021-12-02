@@ -4,7 +4,7 @@ mkdir DexNet2
 mkdir DenseObjectNet
 
 #Download GG-CNN 
-cd GGCNN
+cd original_repos/GGCNN
 git clone https://github.com/dougsm/ggcnn.git
 
 #Download DexNet Family

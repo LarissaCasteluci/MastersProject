@@ -1,4 +1,7 @@
 # Project Specific
+devel/
+build/
+.catkin_workspace
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

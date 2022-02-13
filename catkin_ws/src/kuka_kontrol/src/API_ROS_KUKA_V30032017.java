@@ -86,6 +86,7 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
 	private IErrorHandler errorHandler;
 	
 	private boolean operatorAck = false;
+	private boolean kukaAck = false;
 	//===========================================================
 	
 	public void initialize() {
@@ -673,6 +674,14 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
         	reply(outputStream, ">"+"OperatorAck " + "false");
 	}
 
+	public void getKukaAck(PrintWriter outputStream) {
+		LastReceivedTime = System.currentTimeMillis();
+        if (kukaAck)
+        	reply(outputStream, ">"+"kukaAck " + "true");
+        else
+        	reply(outputStream, ">"+"kukaAck " + "false");
+	}
+
 	private void JointOutOfRange() { 
 		CartesianImpedanceControlMode OutOfRange = new CartesianImpedanceControlMode();
 		OutOfRange.parametrize(CartDOF.ALL).setDamping(.7);
@@ -753,6 +762,7 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
 	    		getIsMastered(outputStream);
 	    		getOperationMode(outputStream);
 	    		getOperatorAck(outputStream);
+	    		getKukaAck(outputStream);
 	    		getIsFinished(outputStream);
                 getHasError(outputStream);
 
@@ -874,10 +884,12 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
 			else if( (lineSplt[0].toString()).equals("askForOperatorAck".toString())) {
 				getLogger().info("command askForOperatorAck");
 				operatorAck = false;
-				getLogger().info("operatorAck is false");
-				getLogger().info("before function askForOperatorAck");
 				askForOperatorAck(CommandStr);
-				getLogger().info("after function askForOperatorAck");
+			}
+			else if( (lineSplt[0].toString()).equals("askForKukaAck".toString())) {
+				getLogger().info("command askForKukaAck");
+				kukaAck = false;
+				askForOperatorAck(CommandStr);
 			}
             
             if( skt.isInputShutdown() || !skt.isConnected() || skt.isOutputShutdown() || skt.isClosed())
@@ -911,6 +923,10 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
 		}
 		else
 			getLogger().info("Unacceptable getACK command! (strParams.length must be greater than 2)");
+	}
+
+		public void askForKukaAck(String message){  // get acknowledgement from Robot's that movement has finished
+        kukaAck = true;
 	}
 
 	//===========================================================

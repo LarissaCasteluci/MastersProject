@@ -12,25 +12,25 @@ version = 'V15032017'
 
 # This application is intended for floor mounted robots.
 #######################################################################################################################
-from client_lib import *
+from kuka_ros_node import *
 import time, os
 
 print("terminei os imports!")
 
 # Making a connection object.
 print("Criando o cliente:")
-my_client = kuka_iiwa_ros_client()
+kuka_ros_node = kuka_iiwa_ros_node()
 print("criei o cliente do iiwa")
 
 print("Esperando o cliente ficar disponivel")
-while (not my_client.isready):
+while (not kuka_ros_node.isready):
     pass  # Wait until iiwa is connected zzz!
 
 # Initializing Tool 1
 print("Meu cliente está pronto!")
 
 print("Inicializando a ferramenta tool1")
-my_client.send_command('setTool tool1')
+kuka_ros_node.send_command('setTool tool1')
 print("Antes do FOR 1000")
 
 for i in range(1000):
@@ -43,20 +43,20 @@ for i in range(1000):
     print(cl_pink('==========================================\n'))
 
     print('#####################################')
-    print('OperationMode\t=', my_client.OperationMode)  # True when a collision has accured.
-    print('isCollision\t=', my_client.isCollision)        # True when a collision has accured.
-    print('isCompliance\t=', my_client.isCompliance)      # True when robot is in Compliance mode.
-    print('isMastered\t=', my_client.isMastered)
-    print('isready\t=', my_client.isready)                # True when robot is connected
-    print('isReadyToMove\t=', my_client.isReadyToMove)    # True when robot can move, e.g. when the safety key is pressed...
+    print('OperationMode\t=', kuka_ros_node.OperationMode)  # True when a collision has accured.
+    print('isCollision\t=', kuka_ros_node.isCollision)        # True when a collision has accured.
+    print('isCompliance\t=', kuka_ros_node.isCompliance)      # True when robot is in Compliance mode.
+    print('isMastered\t=', kuka_ros_node.isMastered)
+    print('isready\t=', kuka_ros_node.isready)                # True when robot is connected
+    print('isReadyToMove\t=', kuka_ros_node.isReadyToMove)    # True when robot can move, e.g. when the safety key is pressed...
 
-    print('ToolPosition\t=', my_client.ToolPosition)      # Reading Tool cartesian position
-    print('ToolForce\t=', my_client.ToolForce)            # Reading Tool cartesian force
-    print('ToolTorque\t=', my_client.ToolTorque)          # Reading Tool cartesian torque
+    print('ToolPosition\t=', kuka_ros_node.ToolPosition)      # Reading Tool cartesian position
+    print('ToolForce\t=', kuka_ros_node.ToolForce)            # Reading Tool cartesian force
+    print('ToolTorque\t=', kuka_ros_node.ToolTorque)          # Reading Tool cartesian torque
 
-    print('JointAcceleration\t=', my_client.JointAcceleration)    # Current joint acceleration
-    print('JointJerk\t=', my_client.JointJerk)                    # Current joint jerk
-    print('JointPosition\t=', my_client.JointPosition)            # Reading joints position
-    print('JointVelocity\t=', my_client.JointVelocity)            # Reading joints velocity
+    print('JointAcceleration\t=', kuka_ros_node.JointAcceleration)    # Current joint acceleration
+    print('JointJerk\t=', kuka_ros_node.JointJerk)                    # Current joint jerk
+    print('JointPosition\t=', kuka_ros_node.JointPosition)            # Reading joints position
+    print('JointVelocity\t=', kuka_ros_node.JointVelocity)            # Reading joints velocity
     print('#####################################')
     time.sleep(1)

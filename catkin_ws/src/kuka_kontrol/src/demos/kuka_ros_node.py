@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+import rospy
+import os
+from std_msgs.msg import String
+
 # KUKA API for ROS
 version = 'V15032017'
 
@@ -11,9 +15,6 @@ version = 'V15032017'
 # Dependencies: conf.txt, ROS server, Rospy, KUKA iiwa java SDK, KUKA iiwa robot.
 
 #######################################################################################################################
-import rospy, os
-from std_msgs.msg import String
-
 
 def cl_black(msge): return '\033[30m'+msge+'\033[0m'
 def cl_red(msge): return '\033[31m'+msge+'\033[0m'
@@ -36,7 +37,7 @@ def cl_lightcyan(msge): return '\033[96m'+msge+'\033[0m'
 
 #######################################################################################################################
 #   Class: Kuka iiwa ROS node    #####################
-class kuka_iiwa_ros_client:
+class kuka_iiwa_ros_node:
     #   M: __init__ ===========================
     def __init__(self): # Makes kuka_iiwa ROS node
         self.JointPosition = ([None,None,None,None,None,None,None],None)

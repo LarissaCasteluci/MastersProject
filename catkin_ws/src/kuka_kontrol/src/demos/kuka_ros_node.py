@@ -34,7 +34,6 @@ def cl_lightcyan(msge): return '\033[96m'+msge+'\033[0m'
 
 #######################################################################################################################
 
-
 #######################################################################################################################
 #   Class: Kuka iiwa ROS node    #####################
 class kuka_iiwa_ros_node:
@@ -150,24 +149,24 @@ class kuka_iiwa_ros_node:
         #rospy.loginfo(rospy.get_caller_id() + "Received ToolForce " + str(data.data) )
         # e.g, '[13.485958070668463, 0.3785658886199012, 5.964988607372689] 1459253274.11'
         self.ToolForce = ([float(x) for x in data.data.split(']')[0][1:].split(', ')], float(data.data.split(']')[1]))
-        
+
     def ToolTorque_callback(self, data):
         #rospy.loginfo(rospy.get_caller_id() + "Received ToolTorque " + str(data.data) )
         # e.g, '[13.485958070668463, 0.3785658886199012, 5.964988607372689] 1459253274.11'
         self.ToolTorque = ([float(x) for x in data.data.split(']')[0][1:].split(', ')], float(data.data.split(']')[1]))
-    
+
     def JointAcceleration_callback(self, data):
         # e.g. 1.0 1459253274.11
-        self.JointAcceleration = ( float(data.data.split(' ')[0]), float(data.data.split(' ')[1]) )
-    
+        self.JointAcceleration = (float(data.data.split(' ')[0]), float(data.data.split(' ')[1]) )
+
     def JointVelocity_callback(self, data):
         # e.g. 1.0 1459253274.11
-        self.JointVelocity = ( float(data.data.split(' ')[0]), float(data.data.split(' ')[1]) )
-    
+        self.JointVelocity = (float(data.data.split(' ')[0]), float(data.data.split(' ')[1]) )
+
     def JointJerk_callback(self, data):
         # e.g. 1.0 1459253274.11
-        self.JointJerk = ( float(data.data.split(' ')[0]), float(data.data.split(' ')[1]) )
-    
+        self.JointJerk = (float(data.data.split(' ')[0]), float(data.data.split(' ')[1]) )
+
     #   ~M: callbacks ===========================
 
 #   ~Class: Kuka iiwa ROS client    #####################

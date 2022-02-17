@@ -45,7 +45,7 @@ kuka_ros_node.send_command('setPositionXYZABC 700 0 300 - - - lin')
 
 
 # Performing same motion slower (CartVelocity 50mm/s')
-kuka_ros_node.send_command('setCartVelocity 50') # This only controls the lin motions.
+kuka_ros_node.send_command('setCartVelocity 50')  # This only controls the lin motions.
 
 kuka_ros_node.send_command('setPositionXYZABC 500 100 400 - - - lin')  # lin motions move with CartVelocity
 kuka_ros_node.send_command('setPositionXYZABC - -100 350 - - - lin')

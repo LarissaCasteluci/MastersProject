@@ -56,7 +56,7 @@ class iiwa_socket:
         self.hasError = (False, None)
         self.isready = False
         self.OperatorAck = (False, None)
-        
+        self.kukaAck = False
 
         try:
             # Starting connection thread
@@ -116,9 +116,6 @@ class iiwa_socket:
                 for pack in data.split(">"):  # parsing data pack
                     
                     cmd_splt = pack.split()
-
-                    #print("cmd_splt", cmd_splt, " len(pack) :", len(pack), "non-empty pack :", True if pack else False , "cmd_splt[0]: ", cmd_splt[0] == "OperationMode")
-
                     
                     if pack and cmd_splt[0]=='Joint_Pos':  # If it's JointPosition
                         tmp = [float(''.join([c for c in s if c in '0123456789.eE-'])) for s in cmd_splt[1:]]
@@ -176,7 +173,9 @@ class iiwa_socket:
                         if cmd_splt[1] == "false": self.OperatorAck = (False, last_read_time)
                         elif cmd_splt[1] == "true": self.OperatorAck = (True, last_read_time)
 
-                    
+                    elif pack and cmd_splt[0]=='kukaAck':  # If hasError
+                        if cmd_splt[1] == "false": self.OperatorAck = (False, last_read_time)
+                        elif cmd_splt[1] == "true": self.OperatorAck = (True, last_read_time)
 
                     if ( all(item != None for item in self.JointPosition[0]) and
                          all(item != None for item in self.ToolPosition[0]) and
@@ -247,6 +246,7 @@ class kuka_iiwa_ros_node:
         pub_isFinished = rospy.Publisher('isFinished', String, queue_size=10)
         pub_hasError = rospy.Publisher('hasError', String, queue_size=10)
         pub_OperatorAck = rospy.Publisher('OperatorAck', String, queue_size=10)
+        pub_kukaAck = rospy.Publisher('kukaAck', String, queue_size=10)
 
         #   Make kuka_iiwa node
         rospy.init_node('kuka_iiwa', anonymous=False)
@@ -269,7 +269,8 @@ class kuka_iiwa_ros_node:
                                  [pub_JointJerk, self.iiwa_soc.JointJerk],
                                  [pub_isFinished, self.iiwa_soc.isFinished],
                                  [pub_hasError, self.iiwa_soc.hasError],
-                                 [pub_OperatorAck, self.iiwa_soc.OperatorAck] ]:
+                                 [pub_OperatorAck, self.iiwa_soc.OperatorAck],
+                                 [pub_kukaAck, self.iiwa_soc.kukaAck]]:
 
                 data_str = str(data[0]) +' '+ str(rospy.get_time())
                 ##########rospy.loginfo(data_str)

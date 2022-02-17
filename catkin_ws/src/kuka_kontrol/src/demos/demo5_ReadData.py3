@@ -15,23 +15,17 @@ version = 'V15032017'
 from kuka_ros_node import *
 import time, os
 
-print("terminei os imports!")
 
 # Making a connection object.
-print("Criando o cliente:")
 kuka_ros_node = kuka_iiwa_ros_node()
-print("criei o cliente do iiwa")
 
-print("Esperando o cliente ficar disponivel")
 while (not kuka_ros_node.isready):
     pass  # Wait until iiwa is connected zzz!
 
 # Initializing Tool 1
-print("Meu cliente está pronto!")
 
 print("Inicializando a ferramenta tool1")
 kuka_ros_node.send_command('setTool tool1')
-print("Antes do FOR 1000")
 
 for i in range(1000):
     os.system('clear')

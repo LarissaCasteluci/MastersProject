@@ -8,11 +8,10 @@ import com.kuka.roboticsAPI.motionModel.IMotionContainerListener;
 
 public class KukaIMotionContainerListener implements IMotionContainerListener {
 
-	private boolean endFlag;
+	public boolean ACK = false;
 	
-	public KukaIMotionContainerListener(boolean flag) {
+	public KukaIMotionContainerListener() {
 		// TODO Auto-generated constructor stub
-		endFlag = flag;
 	}
 
 	@Override
@@ -31,14 +30,18 @@ public class KukaIMotionContainerListener implements IMotionContainerListener {
 	@Override
 	public void motionFinished(IMotion motion) {
 		// TODO Auto-generated method stub
-		endFlag = true;
+		ACK = true;
+		//getLogger().info("begin askForOperator function");
 	}
 
 	@Override
 	public void motionStarted(IMotion motion) {
 		// TODO Auto-generated method stub
-		endFlag = false;
+		ACK = false;
 	}
 	
+	public boolean getACK(){
+		return ACK;
+	}
 }
 

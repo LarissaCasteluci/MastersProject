@@ -56,7 +56,8 @@ public class RobotApplication extends RoboticsAPIApplication {
 	public boolean kukaACK = false;
 	
 	private IErrorHandler errorHandler;
-    private IMotionContainer _currentMotion;
+    public IMotionContainer _currentMotion;
+    KukaIMotionContainerListener kukaMotionContainerListener = new KukaIMotionContainerListener();
     
 	@Override
 	public void initialize() {
@@ -155,9 +156,8 @@ public class RobotApplication extends RoboticsAPIApplication {
 			.triggerWhen(forceCon, ica);
 
 		if(lbr.isReadyToMove()) {
-			IMotionContainerListener myMotionContainerListener = new KukaIMotionContainerListener(kukaACK);
-			IMotionContainer imc = this._currentMotion=tool.moveAsync(MB, myMotionContainerListener);
-			this._currentMotion=tool.moveAsync(MB);
+			this._currentMotion = tool.moveAsync(MB, kukaMotionContainerListener);
+			
 		}
 	} // public void MoveSafe
     
@@ -165,6 +165,13 @@ public class RobotApplication extends RoboticsAPIApplication {
 	@Override
 	public void run() {
 		// your application execution starts here
-		lbr.move(ptpHome());
+		//lbr.move(ptpHome());
+		tool.moveAsync(ptpHome());
+		kukaACK = kukaMotionContainerListener.getACK();
+		while(!kukaACK){
+			getLogger().info("Not finished movement");
+			kukaACK = kukaMotionContainerListener.getACK();
+		}
+		getLogger().info("Finished movement");
 	}
 }

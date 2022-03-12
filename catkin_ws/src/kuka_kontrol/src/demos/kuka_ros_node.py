@@ -3,6 +3,7 @@
 import rospy
 import os
 from std_msgs.msg import String
+import random
 
 # KUKA API for ROS
 version = 'V15032017'
@@ -46,7 +47,8 @@ class kuka_iiwa_ros_node:
         self.JointAcceleration = (None, None)
         self.JointVelocity = (None, None)
         self.JointJerk = (None, None)
-        self.isready = False
+        self.isReady = False
+        self.isFinished = False
         self.isCompliance = (False, None)
         self.isReadyToMove  = (False, None)
         self.isCollision  = (False, None)
@@ -77,12 +79,13 @@ class kuka_iiwa_ros_node:
         rospy.Subscriber("OperationMode", String, self.OperationMode_callback)
         rospy.Subscriber("isReadyToMove", String, self.isReadyToMove_callback)
         rospy.Subscriber("OperatorAck", String, self.OperatorAck_callback)
+        rospy.Subscriber("isFinished", String, self.isFinished_callback)
 
         #   Make Publishers for kuka_iiwa commands
         self.pub_kuka_command = rospy.Publisher('kuka_command', String, queue_size=10)
 
         #   Make kuka_iiwa client
-        rospy.init_node('kuka_iiwa_client', anonymous=False)
+        rospy.init_node('kuka_iiwa_client_'+str(random.randrange(0,100)), anonymous=False)
         self.rate = rospy.Rate(100) #    100hz update rate.
 
     #   ~M: __init__ ==========================
@@ -120,6 +123,13 @@ class kuka_iiwa_ros_node:
         if d[0] == 'False': stat = False
         self.isReadyToMove = (stat, float(d[1]))
 
+    def isFinished_callback(self, data):
+        #rospy.loginfo(rospy.get_caller_id() + "Received isReadyToMove " + str(data.data) )
+        d = str(data.data).split() # e.g. off 1459253274.11
+        if d[0] == 'True': stat = True
+        if d[0] == 'False': stat = False
+        self.isFinished = (stat, float(d[1]))
+
     def isCollision_callback(self, data):
         # rospy.loginfo(rospy.get_caller_id() + "Received isCollision " + str(data.data) )
         d = str(data.data).split()  # e.g. off 1459253274.11
@@ -138,7 +148,7 @@ class kuka_iiwa_ros_node:
         # rospy.loginfo(rospy.get_caller_id() + "Received isMastered " + str(data.data) )
         d = str(data.data).split()  # e.g. off 1459253274.11
         self.OperationMode = (d[0], float(d[1]))
-        self.isready = True
+        self.isReady = True
 
     def ToolPosition_callback(self, data):
         #rospy.loginfo(rospy.get_caller_id() + "Received ToolPosition " + str(data.data) )

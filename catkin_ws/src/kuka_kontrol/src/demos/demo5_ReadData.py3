@@ -19,7 +19,7 @@ import time, os
 # Making a connection object.
 kuka_ros_node = kuka_iiwa_ros_node()
 
-while (not kuka_ros_node.isready):
+while (not kuka_ros_node.isReady):
     pass  # Wait until iiwa is connected zzz!
 
 # Initializing Tool 1
@@ -41,8 +41,9 @@ for i in range(1000):
     print('isCollision\t=', kuka_ros_node.isCollision)        # True when a collision has accured.
     print('isCompliance\t=', kuka_ros_node.isCompliance)      # True when robot is in Compliance mode.
     print('isMastered\t=', kuka_ros_node.isMastered)
-    print('isready\t=', kuka_ros_node.isready)                # True when robot is connected
+    print('isready\t=', kuka_ros_node.isReady)                # True when robot is connected
     print('isReadyToMove\t=', kuka_ros_node.isReadyToMove)    # True when robot can move, e.g. when the safety key is pressed...
+    print('isFinished\t=', kuka_ros_node.isFinished)    # Guess what
 
     print('ToolPosition\t=', kuka_ros_node.ToolPosition)      # Reading Tool cartesian position
     print('ToolForce\t=', kuka_ros_node.ToolForce)            # Reading Tool cartesian force

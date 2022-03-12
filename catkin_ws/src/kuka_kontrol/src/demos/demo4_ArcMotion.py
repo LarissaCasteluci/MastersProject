@@ -27,7 +27,7 @@ def MaxT2Speed(kuka_ros_node):
 
 if __name__ == '__main__':
     kuka_ros_node = kuka_iiwa_ros_node()  # Making a connection object.
-    while (not kuka_ros_node.isready):
+    while (not kuka_ros_node.isReady):
         pass  # Wait until iiwa is connected zzz!
 
     if kuka_ros_node.OperationMode[0] == 'T1':

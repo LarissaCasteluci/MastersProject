@@ -1,5 +1,5 @@
 """
-  Script intended for obtaing data from a Real Sense Camera  
+  Script intended for obtaining data from a Real Sense Camera
 """
 
 import pyrealsense2 as rs

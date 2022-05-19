@@ -17,7 +17,7 @@ from kuka_ros_node import *
 kuka_ros_node = kuka_iiwa_ros_node()
 
 # Wait until iiwa is connected zzz!
-while (not kuka_ros_node.isready): pass
+while (not kuka_ros_node.isReady): pass
 print('Started!')
 
 # Initializing Tool 1
@@ -33,20 +33,23 @@ kuka_ros_node.send_command('setCartVelocity 10000')     # If the CartVelocity is
 # Move close to a start position.
 kuka_ros_node.send_command('setPosition 0 49.43 0 -48.5 0 82.08 0')
 
-
-# Move to the exact start position.
-kuka_ros_node.send_command('setPositionXYZABC 700 0 300 -180 0 -180 ptp')  # ptp motions move with setJointAcceleration
-
-
-# Performing three lin motions with max posible speed.
-kuka_ros_node.send_command('setPositionXYZABC 500 100 400 - - - lin')  # lin motions move with CartVelocity
-kuka_ros_node.send_command('setPositionXYZABC - -100 350 - - - lin')
-kuka_ros_node.send_command('setPositionXYZABC 700 0 300 - - - lin')
+# Move close to a start position.
+kuka_ros_node.send_command('setPosition 0 80 0 -48.5 0 82.08 0')
 
 
-# Performing same motion slower (CartVelocity 50mm/s')
-kuka_ros_node.send_command('setCartVelocity 50')  # This only controls the lin motions.
-
-kuka_ros_node.send_command('setPositionXYZABC 500 100 400 - - - lin')  # lin motions move with CartVelocity
-kuka_ros_node.send_command('setPositionXYZABC - -100 350 - - - lin')
-kuka_ros_node.send_command('setPositionXYZABC 700 0 300 - - - lin')
+# # Move to the exact start position.
+# kuka_ros_node.send_command('setPositionXYZABC 700 0 300 -180 0 -180 ptp')  # ptp motions move with setJointAcceleration
+#
+#
+# # Performing three lin motions with max posible speed.
+# kuka_ros_node.send_command('setPositionXYZABC 500 100 400 - - - lin')  # lin motions move with CartVelocity
+# kuka_ros_node.send_command('setPositionXYZABC - -100 350 - - - lin')
+# kuka_ros_node.send_command('setPositionXYZABC 700 0 300 - - - lin')
+#
+#
+# # Performing same motion slower (CartVelocity 50mm/s')
+# kuka_ros_node.send_command('setCartVelocity 50')  # This only controls the lin motions.
+#
+# kuka_ros_node.send_command('setPositionXYZABC 500 100 400 - - - lin')  # lin motions move with CartVelocity
+# kuka_ros_node.send_command('setPositionXYZABC - -100 350 - - - lin')
+# kuka_ros_node.send_command('setPositionXYZABC 700 0 300 - - - lin')

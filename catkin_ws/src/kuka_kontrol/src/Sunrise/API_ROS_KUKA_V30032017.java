@@ -75,7 +75,6 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
 	
 	public double Acceleration = 1.0;
 	public double Velocity = 1.0;
-	
 	public double CartVelocity = 10;
 
 	public IMotionContainer handleCompliance;
@@ -113,9 +112,13 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
 					                               IMotionContainer failedContainer,
 					                               List<IMotionContainer> canceledContainers) {
 
-                getLogger().warn("Excecution of the following motion failed: "
-                                             + failedContainer.getCommand().toString());
-                getLogger().info("The following motions will not be executed:");
+                getLogger()
+                .warn("Excecution of the following motion failed: "
+                      + failedContainer.getCommand().toString());
+                
+                getLogger()
+                .info("The following motions will not be executed:");
+                
                 for (int i = 0; i < canceledContainers.size(); i++) {
                     getLogger()
                         .info(canceledContainers
@@ -127,7 +130,9 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
 			}
         }; // IErrorHandler()
 
-		getApplicationControl().registerMoveAsyncErrorHandler(errorHandler);
+		getApplicationControl()
+		.registerMoveAsyncErrorHandler(errorHandler);
+		
 	} // public void initialize()
 
     //===========================================================
@@ -513,6 +518,7 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
 		getLogger().info("ForceStop!");
 
 	    kukaAck = true;
+		}
 	}
 
 	//===========================================================
@@ -612,7 +618,7 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
 	//===========================================================
 
 	public void resetCompliance(){
-	    kukaAck = false
+	    kukaAck = false;
 
 		CartesianImpedanceControlMode resetComp = new CartesianImpedanceControlMode();
 		resetComp.parametrize(CartDOF.ALL).setDamping(.7);
@@ -1065,6 +1071,5 @@ public class API_ROS_KUKA_V30032017 extends RoboticsAPIApplication {
 		app.runApplication();
 		
 	}
-
 }
 

@@ -1,5 +1,4 @@
 import logging
-from pty import spawn
 
 import kubric as kb
 import numpy as np
@@ -43,19 +42,6 @@ obj = kb.Cube(name="test",
                  material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color()),
                  velocity=velocity)
 
-scale = 0.004
-#obj = kb.FileBasedObject(
-#  asset_id="C0",
-#  render_filename="/1DatasetGeneration/assets/C0.obj",
-#  bounds=((-1, -1, -1), (1, 1, 1)),
-#  #position=(0, 0, 0.2),
-#  position=(0, 0, 1),
-#  simulation_filename="/1DatasetGeneration/assets/C0.urdf",
-#  scale=(scale, scale, scale),
-#  #scale=(1, 1, 1),
-#  material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color()),
-#  velocity=rng.uniform([-1, -1, 0], [1, 1, 0]))
-  #velocity=rng.uniform([0,0,0], [0,0,0]))
 
 scene += obj
 

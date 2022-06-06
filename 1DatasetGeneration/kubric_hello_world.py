@@ -4,12 +4,8 @@ from pty import spawn
 import kubric as kb
 import numpy as np
 from kubric.renderer.blender import Blender as KubricRenderer
-<<<<<<< Updated upstream
 from kubric.simulator.pybullet import PyBullet as KubricSimulator
-#
-=======
-# https://github.com/google-research/kubric/issues/185
->>>>>>> Stashed changes
+
 
 logging.basicConfig(level="INFO")
 
@@ -22,22 +18,18 @@ renderer = KubricRenderer(scene)
 simulator = KubricSimulator(scene)
 
 # --- populate the scene with objects, lights, cameras
-<<<<<<< Updated upstream
 scene += kb.Cube(name="floor",
                  scale=(10, 10, 0.1),
                  position=(0, 0, -0.3),
                  material=kb.FlatMaterial(),
                  static=True)
 
-scene += kb.DirectionalLight(name="sun",
-                             position=(-1, -0.5, 3),
-                             look_at=(0, 0, 0),
-                             intensity=1.5)
+scene += kb.DirectionalLight(name="sun", position=(-1, -0.5, 3),
+                             look_at=(0, 0, 0), intensity=1.5)
+scene += kb.PerspectiveCamera(name="camera", position=(3, -1, 4),
+                              look_at=(0, 0, 1))
 
 
-scene += kb.PerspectiveCamera(name="camera",
-                              position=(0, 0, 20),
-=======
 scene += kb.Cube(name="floor", scale=(10, 10, 0.1), position=(0, 0, -0.1))
 
 obj = kb.FileBasedObject(
@@ -48,11 +40,6 @@ obj = kb.FileBasedObject(
 
 scene += obj
 
-scene += kb.DirectionalLight(name="sun", position=(-1, -0.5, 3),
-                             look_at=(0, 0, 0), intensity=1.5)
-scene += kb.PerspectiveCamera(name="camera", position=(3, -1, 4),
->>>>>>> Stashed changes
-                              look_at=(0, 0, 1))
 
 rng = np.random.default_rng()
 velocity = rng.uniform([-1, -1, 0], [1, 1, 0])

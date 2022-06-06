@@ -110,7 +110,7 @@ class iiwa_socket:
             try:
                 data = str(self.connection.recv(self.BUFFER_SIZE))
                 last_read_time = time.time()    # Keep received time
-                print(data)
+                #print(data)
 
                 # Process the received data pacage
                 for pack in data.split(">"):  # parsing data pack

@@ -3,6 +3,11 @@
 
 autonumber
 
+'Camera
+'IIWA
+'Computador
+'Garra
+
 Alice -> Bob: Authentication Request
 Bob --> Alice: Authentication Response
 

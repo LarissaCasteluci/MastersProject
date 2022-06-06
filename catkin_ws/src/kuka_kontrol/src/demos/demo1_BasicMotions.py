@@ -24,17 +24,35 @@ print('Started!')
 kuka_ros_node.send_command('setTool tool1')
 
 # Initializing
-kuka_ros_node.send_command('setJointAcceleration 1.0')  # If the JointAcceleration is not set, the defult value is 1.0.
-kuka_ros_node.send_command('setJointVelocity 1.0')      # If the JointVelocity is not set, the defult value is 1.0.
-kuka_ros_node.send_command('setJointJerk 1.0')          # If the JointJerk is not set, the defult value is 1.0.
-kuka_ros_node.send_command('setCartVelocity 10000')     # If the CartVelocity is not set, the defult value is 100
+kuka_ros_node.send_command('setJointAcceleration 1.0')  # If the JointAcceleration is not set, the default value is 1.0.
+kuka_ros_node.send_command('setJointVelocity 0.1')      # If the JointVelocity is not set, the default value is 1.0.
+kuka_ros_node.send_command('setJointJerk 1.0')          # If the JointJerk is not set, the default value is 1.0.
+kuka_ros_node.send_command('setCartVelocity 50')     # If the CartVelocity is not set, the default value is 100
+
+
+## Set to start Position
+kuka_ros_node.send_command('setPositionXYZABC 0 -800 300 - - - ptp')  # ptp motions move with setJointAcceleration
+
+# # Performing same motion slower (CartVelocity 100mm/s')
+kuka_ros_node.send_command('setCartVelocity 50')  # This only controls the lin motions.
+kuka_ros_node.send_command('setPositionXYZABC 0 -800 200 - - - lin')  # lin motions move with CartVelocity
+
+
+kuka_ros_node.send_command('setPositionXYZABC 100 -800 300 - - - ptp')  # ptp motions move with setJointAcceleration
+
+
+# Initializing
+#kuka_ros_node.send_command('setJointAcceleration 1.0')  # If the JointAcceleration is not set, the defult value is 1.0.
+#kuka_ros_node.send_command('setJointVelocity 1.0')      # If the JointVelocity is not set, the defult value is 1.0.
+#kuka_ros_node.send_command('setJointJerk 1.0')          # If the JointJerk is not set, the defult value is 1.0.
+#kuka_ros_node.send_command('setCartVelocity 10000')     # If the CartVelocity is not set, the defult value is 100
 
 
 # Move close to a start position.
-kuka_ros_node.send_command('setPosition 0 49.43 0 -48.5 0 82.08 0')
+#kuka_ros_node.send_command('setPosition 0 49.43 0 -48.5 0 82.08 0')
 
 # Move close to a start position.
-kuka_ros_node.send_command('setPosition 0 80 0 -48.5 0 82.08 0')
+#kuka_ros_node.send_command('setPosition 0 80 0 -48.5 0 82.08 0')
 
 
 # # Move to the exact start position.

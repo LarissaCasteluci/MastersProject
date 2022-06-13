@@ -1,3 +1,5 @@
+# https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=42686
+
 import logging
 
 import kubric as kb
@@ -10,9 +12,9 @@ logging.basicConfig(level="INFO")
 
 # --- create scene and attach a renderer to it
 scene = kb.Scene(resolution=(256, 256))
-scene.frame_end = 20   # < numbers of frames to render
+scene.frame_end = 1   # < numbers of frames to render
 scene.frame_rate = 1  # < rendering framerate
-scene.step_rate = 240  # < simulation framerate
+scene.step_rate = 240  # < simulation total steps
 renderer = KubricRenderer(scene)
 simulator = KubricSimulator(scene)
 
@@ -20,6 +22,30 @@ simulator = KubricSimulator(scene)
 scene += kb.Cube(name="floor",
                  scale=(10, 10, 0.1),
                  position=(0, 0, -0.3),
+                 material=kb.FlatMaterial(),
+                 static=True)
+
+scene += kb.Cube(name="wall1",
+                 scale=(0.1, 7, 1),
+                 position=(7, 0, 0.5),
+                 material=kb.FlatMaterial(),
+                 static=True)
+
+scene += kb.Cube(name="wall2",
+                 scale=(0.1, 7, 1),
+                 position=(-7, 0, 0.5),
+                 material=kb.FlatMaterial(),
+                 static=True)
+
+scene += kb.Cube(name="wall3",
+                 scale=(7, 0.1, 1),
+                 position=(0, 7, 0.5),
+                 material=kb.FlatMaterial(),
+                 static=True)
+
+scene += kb.Cube(name="wall4",
+                 scale=(7, 0.1, 1),
+                 position=(0, -7, 0.5),
                  material=kb.FlatMaterial(),
                  static=True)
 
@@ -33,6 +59,10 @@ scene += kb.PerspectiveCamera(name="camera",
                               position=(0, 0, 20),
                               look_at=(0, 0, 1))
 
+
+
+
+############ ADD OBJECTS ###############################
 rng = np.random.default_rng()
 velocity = rng.uniform([-1, -1, 0], [1, 1, 0])
 

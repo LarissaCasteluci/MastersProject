@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from kuka_ros_node import *
 from camera import RealSenseCamera
+from dummys import *
 
 def set_robot_configurations():
 
@@ -23,7 +24,8 @@ def get_camera_data():  # returns Images
     return depth, color
 
 
-def run_inference(neuralnetwork):  # returns x,y, alpha in image coordinates
+def run_inference(neuralnetwork, depth, color):  # returns x,y, alpha in image coordinates
+
     pass
 
 
@@ -31,20 +33,9 @@ def calculate_perspective_camera():  # return x, y, alpha in world coordinates
     pass
 
 
-def move_robot(position):
+def move_robot(position, mode):
 
-    ## Points X Y Z A B C
-    dp = f'641 170 -319 0 0 0'  # Drop Point
-
-    # TODO: Calculate grasp point based on what is received from the network
-    gp = f'366 321 -44 0 0 0'  # Grasp point
-
-
-    # Go to "grasp" position
-    kuka.send_command(f'setPositionXYZABC {gp} lin')
-
-    # Go to drop Position
-    kuka.send_command(f'setPositionXYZABC {dp} ptp')
+    kuka.send_command(f'setPositionXYZABC {position} {mode}')
 
 
 def tcp_control():
@@ -63,18 +54,25 @@ def main():
     for i in range(n_experiments):
         kuka.send_command(f'setPositionXYZABC {ip} ptp')
 
-        get_camera_data()  # Get camera Data ( Image )
+        #get_camera_data()  # Get camera Data ( Image )
+        get_camera_data_dummy()
 
-        run_inference(network)  # Get
+        #run_inference(network)  # Get
+        run_inference_dummy()
 
-        calculate_perspective_camera()
+        #calculate_perspective_camera()
+        calculate_perspective_camera_dummy()
 
-        move_robot()
+        # TODO: Calculate grasp point based on what is received from the network
+        gp = f'366 321 -44 0 0 0'  # Grasp point --> this will be received from the network
+        move_robot(gp, "lin")
 
-        tcp_control()
+        tcp_control_dummy()
 
-        move2_robot()
+        dp = f'641 170 -319 0 0 0'  # Drop Point
+        move_robot(dp, "ptp")
 
+        tcp_control_dummy()
 
 if __name__ == "__main__":
 

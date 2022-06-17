@@ -7,17 +7,17 @@ TODO
 1. Deactivate conda
 2. Start running: "roscore"
 3. "cd MasterProject/catkin_ws"
-4. "cd catkin_ws"; "catkin_make" -> build project
+4. "catkin_make" -> build project
 5. "cd catkin_ws"; "source devel/setup.zsh" -> find references to project
-6. "rosrun kuka_kontrol server_V30032017.py" 
-7. "rosrun kuka_kontrol demo5_ReadData.py"
+6. "rosrun kuka_kontrol server_V30032017.py3" 
+7. "rosrun kuka_kontrol demo5_ReadData.py3"
 
 
 ## See robot configuration
 - ROBOT_IP:6675
 
 ## TCP for tests
-(x:0, y:0, z: 110 )
+(x:0, y:0, z: 110 ):
 
 ## Procedures
 1. [Calibration](#Calibration)

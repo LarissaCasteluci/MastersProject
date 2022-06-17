@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+
+import rospy
 from kuka_ros_node import *
 from camera import RealSenseCamera
 from dummys import *
+
 
 def set_robot_configurations():
 
@@ -42,7 +45,6 @@ def tcp_control():
     pass
 
 
-
 def main():
 
     # Initial Position
@@ -74,9 +76,11 @@ def main():
 
         tcp_control_dummy()
 
+
 if __name__ == "__main__":
 
     global kuka
     kuka = kuka_iiwa_ros_node()
 
     main()
+

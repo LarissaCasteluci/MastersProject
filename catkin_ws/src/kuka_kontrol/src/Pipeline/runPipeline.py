@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
+import time
 import rospy
 from kuka_ros_node import *
 from camera import RealSenseCamera
@@ -36,9 +38,23 @@ def calculate_perspective_camera():  # return x, y, alpha in world coordinates
     pass
 
 
-def move_robot(position, mode):
+def move_robot_XYZABC(position, mode):
 
+    print('Started')
     kuka.send_command(f'setPositionXYZABC {position} {mode}')
+    time.sleep(1)
+
+    for i in range(100):
+        print(f'isFinished? {kuka.isFinished}')
+        time.sleep(1)
+        if kuka.isFinished[0] : break
+        if i == 99:
+            print("max tries achieved")
+            sys.exit()
+        print(f"sleeped for {i} seconds")
+
+
+    print('Finished')
 
 
 def tcp_control():
@@ -48,13 +64,15 @@ def tcp_control():
 def main():
 
     # Initial Position
-    ip = f'366 321 -319 0 0 0'
+    # Tool's size
+    tool_s = 110  # size in z-axis in mm
+    ip = f'-95 -500 {str(290 + tool_s)} - - -'
     n_experiments = 1
 
     set_robot_configurations()
 
     for i in range(n_experiments):
-        kuka.send_command(f'setPositionXYZABC {ip} ptp')
+        move_robot_XYZABC(ip, "ptp")
 
         #get_camera_data()  # Get camera Data ( Image )
         get_camera_data_dummy()
@@ -66,13 +84,13 @@ def main():
         calculate_perspective_camera_dummy()
 
         # TODO: Calculate grasp point based on what is received from the network
-        gp = f'366 321 -44 0 0 0'  # Grasp point --> this will be received from the network
-        move_robot(gp, "lin")
+        gp = f'-95 -500 {str(0 + tool_s)} - - -'  # Grasp point --> this will be received from the network
+        move_robot_XYZABC(gp, "lin")
 
         tcp_control_dummy()
 
-        dp = f'641 170 -319 0 0 0'  # Drop Point
-        move_robot(dp, "ptp")
+        dp = f'100 -500 {str(290 + tool_s)} - - -'  # Drop Point
+        move_robot_XYZABC(dp, "ptp")
 
         tcp_control_dummy()
 

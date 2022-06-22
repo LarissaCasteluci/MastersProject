@@ -18,9 +18,10 @@ class RealSenseCamera:
         self.config.enable_stream(rs.stream.depth, width, height, rs.format.z16, freq)
         self.config.enable_stream(rs.stream.color, width, height, rs.format.bgr8, freq)
 
+    def __del__(self):
+        self.pipeline.stop()
 
     def get_single_frame(self):
-        self.pipeline.start(self.config)
         frames = self.pipeline.wait_for_frames()
         depth_frame = frames.get_depth_frame()
         color_frame = frames.get_color_frame()
@@ -29,9 +30,7 @@ class RealSenseCamera:
         depth_image = np.asanyarray(depth_frame.get_data())
         depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         color_image = np.asanyarray(color_frame.get_data())
-        self.pipeline.stop()
         return depth_image, color_image
-
 
 
 # Test Function for camera
@@ -75,17 +74,6 @@ def main():
 
         # Stop streaming
         pipeline.stop()
-
-
-def single_frame():
-
-    camera = RealSenseCamera()
-
-    for i in range(100):
-        image, depth = camera.get_single_frame()
-        cv2.imshow('RealSense_Depth', depth)
-        cv2.imshow('RealSense_BGR', image)
-        cv2.waitKey(1)
 
 
 if __name__ == "__main__":

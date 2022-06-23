@@ -3,9 +3,11 @@
 import sys
 import time
 import rospy
+from pathlib import Path
 from kuka_ros_node import *
 from camera import RealSenseCamera
 from dummys import *
+from inference_ggcnn import call_inference
 
 
 def set_robot_configurations():
@@ -29,9 +31,26 @@ def get_camera_data():  # returns Images
     return depth, color
 
 
-def run_inference(neuralnetwork, depth, color):  # returns x,y, alpha in image coordinates
+def run_inference(neuralnetwork, depth, color):  # returns x, y, alpha in image coordinates
 
-    pass
+    if neuralnetwork == "ggcnn":
+        # Inference GG-CNN
+        args = {}
+        args.network = str(Path())  # Path to weights
+
+        # Dataset & Data & Training
+        args.dataset = "realsense_inference"  # dataset format
+        args.data_depth = depth
+        args.data_rgb = color
+        args.use_depth = 1  # Use depth
+        args.use_rgb = 1  # use rgb
+        args.ds_rotate = 0.0  # Shift the start point of the dataset to use a different test/train split
+        args.num_workers = 8  # Dataset workers
+        args.n_grasps = 1  # Number of grasps to consider per image
+        #parser.iou_eval = 'store_true'  # Compute success based on IoU metric
+        #parser.jacquard_output = 'store_true'  # Jacquard-dataset style output
+        #parser.vis = 'store_true'  # Visualise the network output'
+
 
 
 def calculate_perspective_camera():  # return x, y, alpha in world coordinates

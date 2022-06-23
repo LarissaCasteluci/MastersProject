@@ -43,6 +43,7 @@ class GraspDatasetBase(torch.utils.data.Dataset):
             return torch.from_numpy(s.astype(np.float32))
 
     def get_gtbb(self, idx, rot=0, zoom=1.0):
+        """ Get Grasp """
         raise NotImplementedError()
 
     def get_depth(self, idx, rot=0, zoom=1.0):

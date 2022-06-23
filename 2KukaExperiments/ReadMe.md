@@ -1,5 +1,16 @@
 # Kuka Experiments
 
+
+Jacquard:
+x;y;theta in degrees;opening;jaws size. 
+583.90408; 479.20119; -66.2885; 135.0; 26.1855
+y is toward the bottom of the image (and therefore the angle is horizontally mirrored). 
+When the position is the same on multiple consecutive rows, the first one corresponds to the grasp with the 
+default jaws size of 2 cm and the followings are just repetition of this grasp with different sizes.
+
+Cornell:
+253 319.7
+
 - Segurança
 - Aumentar o box da mesa
 

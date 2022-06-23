@@ -38,6 +38,7 @@ class GraspRectangles:
         Test if GraspRectangle has the desired attr as a function and call it.
         """
         # Fuck yeah python.
+        # I agree, fuck yeah.
         if hasattr(GraspRectangle, attr) and callable(getattr(GraspRectangle, attr)):
             return lambda *args, **kwargs: list(map(lambda gr: getattr(gr, attr)(*args, **kwargs), self.grs))
         else:

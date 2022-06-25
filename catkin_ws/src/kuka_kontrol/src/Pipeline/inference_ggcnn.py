@@ -10,7 +10,7 @@ from utils.data import get_dataset
 logging.basicConfig(level=logging.INFO)
 
 
-def call_inference(args) :
+def call_inference(args):
 
     net = torch.load(args.network)
     device = torch.device("cuda:0")

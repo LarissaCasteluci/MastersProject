@@ -14,3 +14,7 @@ def calculate_perspective_camera_dummy():
 def tcp_control_dummy():
     return 0
 
+
+def move_robot_dummy():
+    return 0
+

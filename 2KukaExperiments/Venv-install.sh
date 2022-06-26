@@ -11,7 +11,7 @@ pip install matplotlib==3.5.1
 pip install scikit-image==0.19.2
 pip install imageio==2.16.1
 pip install imagecodecs==2021.11.20
-pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu114
+pip install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu113
 pip install torchsummary==1.5.1
 pip install tensorboardX==2.5
 pip install rosinstall msgpack empy defusedxml netifaces

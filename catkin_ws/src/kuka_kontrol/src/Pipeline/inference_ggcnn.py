@@ -18,11 +18,13 @@ def call_inference(args):
     # Load Dataset
     logging.info('Initializing ...')
     Dataset = get_dataset(args.dataset)
-    test_dataset = Dataset(args.dataset_path, start=args.split, end=1.0, ds_rotate=args.ds_rotate,
+    inference = Dataset(args.depth, args.rgb,
+                           start=args.split, end=1.0, ds_rotate=args.ds_rotate,
                            random_rotate=args.augment, random_zoom=args.augment,
                            include_depth=args.use_depth, include_rgb=args.use_rgb)
+
     test_data = torch.utils.data.DataLoader (
-        test_dataset,
+        inference,
         batch_size=1,
         shuffle=False,
         num_workers=args.num_workers

@@ -108,7 +108,7 @@ def main():
         #args.depth, args.rgb = get_camera_data()  # Get camera Data ( Image )
         args.depth, args.rgb = get_camera_data_dummy()
 
-        run_inference(args)  # Get
+        run_inference(args)
         #run_inference_dummy()
 
         #calculate_perspective_camera()

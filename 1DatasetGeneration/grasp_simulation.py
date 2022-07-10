@@ -12,7 +12,7 @@ logging.basicConfig(level="INFO")
 
 # --- create scene and attach a renderer to it
 scene = kb.Scene(resolution=(256, 256))
-scene.frame_end = 1   # < numbers of frames to render
+scene.frame_end = 20   # < numbers of frames to render
 scene.frame_rate = 1  # < rendering framerate
 scene.step_rate = 240  # < simulation total steps
 renderer = KubricRenderer(scene)
@@ -66,11 +66,19 @@ scene += kb.PerspectiveCamera(name="camera",
 rng = np.random.default_rng()
 velocity = rng.uniform([-1, -1, 0], [1, 1, 0])
 
-obj = kb.Cube(name="test",
-                 scale=0.5,
-                 position=(0, 0, 5),
-                 material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color()),
-                 velocity=velocity)
+#scale = 0.04
+scale=1
+obj = kb.FileBasedObject(
+  asset_id="G6",
+  render_filename="/1DatasetGeneration/assets/visual_geometry.obj",
+  bounds=((-1, -1, 0), (1, 1, 1)),
+  #position=(0, 0, 0.2),
+  position=(0, 0, 1),
+  simulation_filename="/1DatasetGeneration/assets/teapot.urdf",
+  scale=(scale, scale, scale),
+  material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color()),
+  velocity=rng.uniform([-1, -1, 0], [1, 1, 0]))
+ #velocity=rng.uniform([0,0,0], [0,0,0]))
 
 
 scene += obj
@@ -83,7 +91,7 @@ simulator.run()
 # --- render (and save the blender file)
 renderer.save_state("/1DatasetGeneration/output/helloworld.blend")
 frame = renderer.render()
-kb.write_image_dict(frame, "/1DatasetGeneration/output/")
+kb.write_image_dict(frame, "/1DatasetGeneration/output_teapot/")
 
 # --- save the output as pngs
 #kb.write_png(frame["rgba"], "/1DatasetGeneration/output/helloworld.png")

@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from imageio import imread
 from skimage.transform import rotate, resize
+import typing
 
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -12,6 +13,9 @@ class Image:
     """
     Wrapper around an image with some convenient functions.
     """
+    # Define classes types
+    img: np.typing.NDArray
+
     def __init__(self, img):
         self.img = img
 
@@ -123,6 +127,10 @@ class Image:
 
 
 class DepthImage(Image):
+
+    # Define classes types
+    img: np.typing.NDArray
+
     def __init__(self, img):
         super().__init__(img)
 

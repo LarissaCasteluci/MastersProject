@@ -37,8 +37,8 @@ def get_camera_data():  # returns Images
 
 
 def run_inference(args):  # returns x, y, alpha in image coordinates
-    call_inference(args)
-
+    grasp = call_inference(args)
+    return grasp
 
 
 
@@ -78,7 +78,7 @@ def main():
     ip = f'-95 -500 {str(290 + tool_s)} - - -'
     n_experiments = 1
 
-    set_robot_configurations()
+    #set_robot_configurations()
 
 
     ### Set network's configuration
@@ -87,19 +87,15 @@ def main():
     if network_name == "ggcnn":
         # Inference GG-CNN
         args.network_name = "ggcnn"
-        args.network = str(Path())  # Path to weights
+        args.network = '/home/larissa/MastersProject/catkin_ws/src/kuka_kontrol/src/Pipeline/weights/epoch_18_iou_0.90_statedict.pt'  # Path to weights
 
         # Dataset & Data & Training
         args.dataset = "realsense_inference"  # dataset format
         args.use_depth = 1  # Use depth
-        args.use_rgb = 1  # use rgb
+        args.use_rgb = 1 # use rgb
         args.ds_rotate = 0.0  # Shift the start point of the dataset to use a different test/train split
         args.num_workers = 8  # Dataset workers
         args.n_grasps = 1  # Number of grasps to consider per image
-        #args.iou_eval = 'store_true'  # Compute success based on IoU metric
-        #args.jacquard_output = 'store_true'  # Jacquard-dataset style output
-        #args.vis = 'store_true'  # Visualise the network output'
-
 
     for i in range(n_experiments):
         #move_robot_XYZABC(ip, "ptp")
@@ -108,7 +104,7 @@ def main():
         #args.depth, args.rgb = get_camera_data()  # Get camera Data ( Image )
         args.depth, args.rgb = get_camera_data_dummy()
 
-        run_inference(args)
+        grasp = run_inference(args)
         #run_inference_dummy()
 
         #calculate_perspective_camera()

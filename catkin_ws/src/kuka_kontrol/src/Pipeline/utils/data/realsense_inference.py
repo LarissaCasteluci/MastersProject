@@ -3,46 +3,62 @@ import glob
 
 from .grasp_data import GraspDatasetBase
 from utils.dataset_processing import grasp, image
+import numpy as np
+import torch
 
-
-class RealSenseData(GraspDatasetBase):
+#class RealSenseData(GraspDatasetBase):
+class RealSenseData():
     """
     Dataset wrapper for the Jacquard dataset.
     """
-    def __init__(self, depth, image, **kwargs):
+    def __init__(self, depth, image, include_depth, include_rgb):
         """
         :param kwargs: kwargs for GraspDatasetBase
         """
-        super(RealSenseData, self).__init__(**kwargs)
         self.depth = depth
-
         self.image = image
+        self.include_depth = include_depth
+        self.include_rgb = include_rgb
 
+    def return_x(self):
 
-    def get_gtbb(self, idx, rot=0, zoom=1.0):
-        gtbbs = grasp.GraspRectangles.load_from_jacquard_file(self.grasp_files[idx], scale=self.output_size / 1024.0)
-        c = self.output_size//2
-        gtbbs.rotate(rot, (c, c))
-        gtbbs.zoom(zoom, (c, c))
-        return gtbbs
+        depth_img = self.get_depth()
+        rgb_img = self.get_rgb()
 
-    def get_depth(self, idx, rot=0, zoom=1.0):
-        depth_img = self.depth
-        depth_img.rotate(rot)
-        depth_img.normalise()
-        depth_img.zoom(zoom)
-        depth_img.resize((self.output_size, self.output_size))
-        return depth_img.img
+        if self.include_depth and self.include_rgb:
+            x = self.numpy_to_torch(
+                np.expand_dims(
+                    np.concatenate(
+                        (np.expand_dims(depth_img, 0), rgb_img), 0)
+                , 0)
+            )
+        elif self.include_depth:
+            x = self.numpy_to_torch(depth_img)
+        elif self.include_rgb:
+            x = self.numpy_to_torch(rgb_img)
+        else:
+            raise Exception("no include_depth or include_rgb defined")
 
-    def get_rgb(self, idx, rot=0, zoom=1.0, normalise=True):
-        rgb_img = self.image
-        rgb_img.rotate(rot)
-        rgb_img.zoom(zoom)
-        rgb_img.resize((self.output_size, self.output_size))
-        if normalise:
-            rgb_img.normalise()
-            rgb_img.img = rgb_img.img.transpose((2, 0, 1))
-        return rgb_img.img
+        return x
+
+    def __len__(self):
+        return 1
+
+    @staticmethod
+    def numpy_to_torch(s):
+        if len(s.shape) == 2:
+            return torch.from_numpy(np.expand_dims(s, 0).astype(np.float32))
+        else:
+            return torch.from_numpy(s.astype(np.float32))
+
+    def get_gtbb(self, idx=0, rot=0, zoom=1.0):
+        return 0
+
+    def get_depth(self, idx=0, rot=0, zoom=1.0):
+        return self.depth
+
+    def get_rgb(self, idx=0, rot=0, zoom=1.0, normalise=True):
+        return self.image
 
     def get_jname(self, idx):
-        return '_'.join(self.grasp_files[idx].split(os.sep)[-1].split('_')[:-1])
+        return 'grasp_inference'

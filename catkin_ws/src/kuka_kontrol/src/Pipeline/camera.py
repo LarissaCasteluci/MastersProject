@@ -18,17 +18,17 @@ class RealSenseCamera:
         self.config.enable_stream(rs.stream.depth, width, height, rs.format.z16, freq)
         self.config.enable_stream(rs.stream.color, width, height, rs.format.bgr8, freq)
 
-
     def get_single_frame(self):
         self.pipeline.start(self.config)
-        frames = self.pipeline.wait_for_frames()
-        depth_frame = frames.get_depth_frame()
-        color_frame = frames.get_color_frame()
-        if not depth_frame or not color_frame:
-            self.get_single_frame()
-        depth_image = np.asanyarray(depth_frame.get_data())
-        depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-        color_image = np.asanyarray(color_frame.get_data())
+        for n in range(50):
+            frames = self.pipeline.wait_for_frames()
+            depth_frame = frames.get_depth_frame()
+            color_frame = frames.get_color_frame()
+            if not depth_frame or not color_frame:
+                self.get_single_frame()
+            depth_image = np.asanyarray(depth_frame.get_data())
+            #depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+            color_image = np.asanyarray(color_frame.get_data())
         self.pipeline.stop()
         return depth_image, color_image
 

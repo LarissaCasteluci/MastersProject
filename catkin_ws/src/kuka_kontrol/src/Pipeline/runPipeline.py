@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+from select import select
 import sys
 import time
 import rospy
@@ -13,7 +13,6 @@ from inference_ggcnn import call_inference
 class Arguments:
     def __init__(self):
         pass
-
 
 def set_robot_configurations():
 
@@ -30,9 +29,19 @@ def set_robot_configurations():
     kuka.send_command(f'setCartVelocity {carvel}')
 
 
+def show_images(depth_image, color_image):
+    for n in range(20):
+        depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+        cv2.imshow('RealSense_Depth', depth_image)
+        cv2.imshow('RealSense_BGR', color_image)
+        cv2.waitKey(1)
+
+
 def get_camera_data():  # returns Images
-    camera = RealSenseCamera
-    depth, color = RealSenseCamera.get_single_frame()
+    camera = RealSenseCamera()
+    depth, color = camera.get_single_frame()
+    #reshape and cut image to fit depth: [480, 480, 1]
+    #reshape and cut image to fit depth: [480, 480, 3]
     return depth, color
 
 
@@ -101,10 +110,11 @@ def main():
         #move_robot_XYZABC(ip, "ptp")
         move_robot_dummy()
 
-        #args.depth, args.rgb = get_camera_data()  # Get camera Data ( Image )
-        args.depth, args.rgb = get_camera_data_dummy()
+        args.depth, args.rgb = get_camera_data()  # Get camera Data ( Image )
+        show_images(args.depth, args.rgb)
+        #args.depth, args.rgb = get_camera_data_dummy()
 
-        grasp = run_inference(args)
+        #grasp = run_inference(args)
         #run_inference_dummy()
 
         #calculate_perspective_camera()

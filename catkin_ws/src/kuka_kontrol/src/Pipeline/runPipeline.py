@@ -33,13 +33,14 @@ def show_images(depth_image, color_image):
     for n in range(20):
         depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
         cv2.imshow('RealSense_Depth', depth_image)
-        cv2.imshow('RealSense_BGR', color_image)
+        cv2.imshow('RealSense_BGR', np.transpose(color_image, (2, 1, 0)))
         cv2.waitKey(1)
 
 
 def get_camera_data():  # returns Images
     camera = RealSenseCamera()
     depth, color = camera.get_single_frame()
+    #depth = np.expand_dims(depth, 0)
     #reshape and cut image to fit depth: [480, 480, 1]
     #reshape and cut image to fit depth: [480, 480, 3]
     return depth, color

@@ -2,6 +2,8 @@
 from select import select
 import sys
 import time
+
+import numpy as np
 import rospy
 from pathlib import Path
 from kuka_ros_node import *
@@ -30,19 +32,21 @@ def set_robot_configurations():
 
 
 def show_images(depth_image, color_image):
-    for n in range(20):
-        depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-        cv2.imshow('RealSense_Depth', depth_image)
-        cv2.imshow('RealSense_BGR', np.transpose(color_image, (2, 1, 0)))
-        cv2.waitKey(1)
+    depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
+    cv2.imshow('RealSense_Depth', depth_image)
+    cv2.imshow('RealSense_BGR', color_image)
+    cv2.waitKey(1)
 
 
 def get_camera_data():  # returns Images
     camera = RealSenseCamera()
     depth, color = camera.get_single_frame()
-    #depth = np.expand_dims(depth, 0)
+    color = np.transpose(color, (2, 0, 1))
     #reshape and cut image to fit depth: [480, 480, 1]
     #reshape and cut image to fit depth: [480, 480, 3]
+    color = color[:, :, 80:560]
+    depth = depth[:, 80:560]
+    show_images(depth,  np.transpose(color, (1, 2, 0)))
     return depth, color
 
 
@@ -65,7 +69,7 @@ def move_robot_XYZABC(position, mode):
     for i in range(100):
         print(f'isFinished? {kuka.isFinished}')
         time.sleep(1)
-        if kuka.isFinished[0] : break
+        if kuka.isFinished[0]: break
         if i == 99:
             print("max tries achieved")
             sys.exit()
@@ -106,17 +110,19 @@ def main():
         args.ds_rotate = 0.0  # Shift the start point of the dataset to use a different test/train split
         args.num_workers = 8  # Dataset workers
         args.n_grasps = 1  # Number of grasps to consider per image
+        args.vis = True
 
     for i in range(n_experiments):
         #move_robot_XYZABC(ip, "ptp")
         move_robot_dummy()
 
-        args.depth, args.rgb = get_camera_data()  # Get camera Data ( Image )
-        show_images(args.depth, args.rgb)
+        for n in range(3):
+            args.depth, args.rgb = get_camera_data()  # Get camera Data ( Image )
+            time.sleep(1)
+        np.save()
         #args.depth, args.rgb = get_camera_data_dummy()
 
-        #grasp = run_inference(args)
-        #run_inference_dummy()
+        grasps = run_inference(args)
 
         #calculate_perspective_camera()
         calculate_perspective_camera_dummy()

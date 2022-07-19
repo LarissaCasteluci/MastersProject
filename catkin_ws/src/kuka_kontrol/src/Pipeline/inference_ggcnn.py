@@ -1,12 +1,13 @@
-import argparse
 import logging
-
+import numpy as np
+import time
 import torch.utils.data
-import torch.optim as optim
 from models.common import post_process_output
 from utils.dataset_processing import evaluation, grasp
 from utils.data import get_dataset
 from models.ggcnn2 import GGCNN2
+import cv2
+from utils.visualisation.gridshow import gridshow
 logging.basicConfig(level=logging.INFO)
 
 
@@ -42,13 +43,21 @@ def call_inference(args):
                                                         output[0][0][0][2],
                                                         output[0][0][0][3])
 
-        grasps = grasp.detect_grasps(q_img, ang_img, width_img=width_img, no_grasps=1)
+        grasps = grasp.detect_grasps(q_img,
+                                     ang_img,
+                                     width_img=width_img,
+                                     no_grasps=args.n_grasps)
 
-    #####
-    # all outputs are in ([300,300])
-    # See how:
-    #   -
-    #   -
+    if args.vis:
+        evaluation.plot_output(args.rgb,
+                               args.depth,
+                               q_img,
+                               ang_img,
+                               no_grasps=args.n_grasps,
+                               grasp_width_img=width_img)
+        time.sleep(3)
+
+
     return grasps
 
 

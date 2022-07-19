@@ -32,3 +32,12 @@ Step by step in Development:
 - [ ] Simulate Grasp 3: Elevate the Object
 Until all grasp_proposals have been evaluated. 
 
+
+## References
+- [How to Run RViz](https://admantium.medium.com/robot-operating-system-how-to-start-the-robot-simulation-tool-rviz-540179e92b6b)
+- [Ros Tutorial](http://wiki.ros.org/urdf/Tutorials/Building%20a%20Visual%20Robot%20Model%20with%20URDF%20from%20Scratch)
+
+``` bash
+roslaunch urdf_tutorial display.launch model:=/home/larissa/MastersProject/1DatasetGeneration/assets/gripper.urdf
+
+```

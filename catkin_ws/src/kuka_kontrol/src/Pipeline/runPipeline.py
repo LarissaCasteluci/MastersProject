@@ -7,9 +7,9 @@ from dummys import *
 from utils.dataset_processing.image import Image, DepthImage
 from inference_ggcnn import call_inference
 import matplotlib.pyplot as plt
+from Arguments import TestTypes, Arguments  # Test Configurations
 
 OUTPUT_SIZE = 300
-
 
 def format_depth_data(depth):
     if type(depth) == str:
@@ -38,11 +38,6 @@ def format_rgb_data(color):
     rgb_img.normalise()
     rgb_img.img = rgb_img.img.transpose((2, 0, 1))
     return rgb_img.img
-
-
-class Arguments:
-    def __init__(self):
-        pass
 
 
 def set_robot_configurations():
@@ -127,22 +122,9 @@ def main():
 
 
     ### Set network's configuration
-    network_name = 'ggcnn'
-    args = Arguments()
-    if network_name == "ggcnn":
-        # Inference GG-CNN
-        args.network_name = "ggcnn"
-        args.network = '/home/larissa/MastersProject/catkin_ws/src/kuka_kontrol/src/Pipeline/weights/epoch_18_iou_0.90_statedict.pt'  # Path to weights
-
-        # Dataset & Data & Training
-        args.dataset = "realsense_inference"  # dataset format
-        args.use_depth = 1  # Use depth
-        args.use_rgb = 1  # use rgb
-        args.ds_rotate = 0.0  # Shift the start point of the dataset to use a different test/train split
-        args.num_workers = 1  # Dataset workers
-        args.n_grasps = 1  # Number of grasps to consider per image
-        args.vis = True
-        args.save = False
+    network_name = 'ggcnn2'
+    test_type = TestTypes.ONLY_DEPTH
+    args = Arguments(network_name, test_type)
 
     for i in range(n_experiments):
         #move_robot_XYZABC(ip, "ptp")

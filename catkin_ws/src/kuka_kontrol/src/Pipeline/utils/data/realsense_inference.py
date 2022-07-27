@@ -20,6 +20,9 @@ class RealSenseData():
         self.include_depth = include_depth
         self.include_rgb = include_rgb
 
+        if include_depth is False and include_rgb is False:
+            raise ValueError('At least one of Depth or RGB must be specified.')
+
     def return_x(self):
 
         depth_img = self.get_depth()
@@ -33,7 +36,8 @@ class RealSenseData():
                 , 0)
             )
         elif self.include_depth:
-            x = self.numpy_to_torch(depth_img)
+            #x = self.numpy_to_torch(depth_img)
+            x = self.numpy_to_torch(np.expand_dims(np.expand_dims(depth_img, 0), 0))
         elif self.include_rgb:
             x = self.numpy_to_torch(rgb_img)
         else:

@@ -1,4 +1,6 @@
 import logging
+import pdb
+
 import numpy as np
 import time
 import torch.utils.data
@@ -14,7 +16,6 @@ logging.basicConfig(level=logging.INFO)
 
 def call_inference(args):
 
-    #net = torch.load(args.network)
     input_channels = 1*args.use_depth + 3*args.use_rgb
     net = GGCNN2(input_channels=input_channels)
     net.load_state_dict(torch.load(args.network))
@@ -36,6 +37,7 @@ def call_inference(args):
         net.eval()
         x = inference.return_x()
         logging.info(f'Processing Data!')
+
         xc = x.to(device)
         pos_pred, cos_pred, sin_pred, width_pred = net(xc)
 

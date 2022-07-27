@@ -16,7 +16,8 @@ class RealSenseCamera:
 
         width, height, freq = 640, 480, 30
         self.config.enable_stream(rs.stream.depth, width, height, rs.format.z16, freq)
-        self.config.enable_stream(rs.stream.color, width, height, rs.format.bgr8, freq)
+        #self.config.enable_stream(rs.stream.color, width, height, rs.format.bgr8, freq)
+        self.config.enable_stream(rs.stream.color, width, height, rs.format.rgb8, freq)
 
     def get_single_frame(self):
         self.pipeline.start(self.config)
@@ -45,7 +46,8 @@ def main():
     pipeline_profile = config.resolve(pipeline_wrapper)
 
     config.enable_stream(rs.stream.depth, 640, 480, rs.format.z16, 30)
-    config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    #config.enable_stream(rs.stream.color, 640, 480, rs.format.bgr8, 30)
+    config.enable_stream(rs.stream.color, 640, 480, rs.format.rgb8, 30)
 
     # Start streaming
     pipeline.start(config)

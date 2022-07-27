@@ -4,9 +4,11 @@ import imageio
 
 def get_camera_data_dummy():
     #im = imageio.imread("/home/larissa/MastersProject/2KukaExperiments/realsense_images/color_train_Color.png")
-    # posso fazer 480, 480?
     #return np.zeros((640, 480)), np.zeros((640, 480))
-    return np.zeros((300, 300)), np.zeros((3, 300, 300))
+    #return np.zeros((300, 300)), np.zeros((3, 300, 300))
+    color = np.load("/home/larissa/MastersProject/2KukaExperiments/image_sample/rgb.npy")
+    depth = np.load("/home/larissa/MastersProject/2KukaExperiments/image_sample/depth.npy")
+    return depth, color
 
 
 def run_inference_dummy():

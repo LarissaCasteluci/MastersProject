@@ -1,20 +1,49 @@
 #!/usr/bin/env python3
-from select import select
 import sys
 import time
-
-import numpy as np
-import rospy
-from pathlib import Path
 from kuka_ros_node import *
 from camera import RealSenseCamera
 from dummys import *
+from utils.dataset_processing.image import Image, DepthImage
 from inference_ggcnn import call_inference
+import matplotlib.pyplot as plt
+
+OUTPUT_SIZE = 300
+
+
+def format_depth_data(depth):
+    if type(depth) == str:
+        depth_img = DepthImage.from_tiff(depth)
+    elif type(depth) == np.ndarray:
+        depth_img = DepthImage(depth)
+    else:
+        raise Exception("This type is not implemented")
+    depth_img.rotate(0)
+    depth_img.normalise()
+    depth_img.zoom(1.0)
+    depth_img.resize((OUTPUT_SIZE, OUTPUT_SIZE))
+    return depth_img.img
+
+
+def format_rgb_data(color):
+    if type(color) == str:
+        rgb_img = Image.from_file(color)
+    elif type(color) == np.ndarray:
+        rgb_img = Image(color)
+    else:
+        raise Exception("This type is not implemented")
+    rgb_img.rotate(0)
+    rgb_img.zoom(1.0)
+    rgb_img.resize((OUTPUT_SIZE, OUTPUT_SIZE))
+    rgb_img.normalise()
+    rgb_img.img = rgb_img.img.transpose((2, 0, 1))
+    return rgb_img.img
 
 
 class Arguments:
     def __init__(self):
         pass
+
 
 def set_robot_configurations():
 
@@ -31,22 +60,24 @@ def set_robot_configurations():
     kuka.send_command(f'setCartVelocity {carvel}')
 
 
-def show_images(depth_image, color_image):
-    depth_image = cv2.applyColorMap(cv2.convertScaleAbs(depth_image, alpha=0.03), cv2.COLORMAP_JET)
-    cv2.imshow('RealSense_Depth', depth_image)
-    cv2.imshow('RealSense_BGR', color_image)
-    cv2.waitKey(1)
+def show_images(color_image):
+    imgplot = plt.imshow(color_image.transpose((1, 2, 0)))
+    plt.show()
+
+
+def read_jacquard_data():
+    color_path = "/home/larissa/DATASETS/Jacquard/3f278036c8757f62f6405aff89e48d03/3_3f278036c8757f62f6405aff89e48d03_RGB.png"
+    depth_path = "/home/larissa/DATASETS/Jacquard/3f278036c8757f62f6405aff89e48d03/3_3f278036c8757f62f6405aff89e48d03_perfect_depth.tiff"
+    color = format_rgb_data(color_path)
+    depth = format_depth_data(depth_path)
+    return depth, color
 
 
 def get_camera_data():  # returns Images
     camera = RealSenseCamera()
     depth, color = camera.get_single_frame()
-    color = np.transpose(color, (2, 0, 1))
-    #reshape and cut image to fit depth: [480, 480, 1]
-    #reshape and cut image to fit depth: [480, 480, 3]
-    color = color[:, :, 80:560]
-    depth = depth[:, 80:560]
-    show_images(depth,  np.transpose(color, (1, 2, 0)))
+    color = format_rgb_data(color)
+    depth = format_depth_data(depth)
     return depth, color
 
 
@@ -106,21 +137,24 @@ def main():
         # Dataset & Data & Training
         args.dataset = "realsense_inference"  # dataset format
         args.use_depth = 1  # Use depth
-        args.use_rgb = 1 # use rgb
+        args.use_rgb = 1  # use rgb
         args.ds_rotate = 0.0  # Shift the start point of the dataset to use a different test/train split
-        args.num_workers = 8  # Dataset workers
+        args.num_workers = 1  # Dataset workers
         args.n_grasps = 1  # Number of grasps to consider per image
         args.vis = True
+        args.save = False
 
     for i in range(n_experiments):
         #move_robot_XYZABC(ip, "ptp")
         move_robot_dummy()
 
-        for n in range(3):
-            args.depth, args.rgb = get_camera_data()  # Get camera Data ( Image )
-            time.sleep(1)
-        np.save()
+        args.depth, args.rgb = get_camera_data()  # Get camera Data ( Image )
+        if args.save:
+            np.save("/home/larissa/MastersProject/2KukaExperiments/image_sample/rgb.npy", args.rgb)
+            np.save("/home/larissa/MastersProject/2KukaExperiments/image_sample/depth.npy", args.depth)
+        show_images(args.rgb)
         #args.depth, args.rgb = get_camera_data_dummy()
+        #args.depth, args.rgb = read_jacquard_data()
 
         grasps = run_inference(args)
 

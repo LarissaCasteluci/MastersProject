@@ -16,7 +16,6 @@ class RealSenseCamera:
 
         width, height, freq = 640, 480, 30
         self.config.enable_stream(rs.stream.depth, width, height, rs.format.z16, freq)
-        #self.config.enable_stream(rs.stream.color, width, height, rs.format.bgr8, freq)
         self.config.enable_stream(rs.stream.color, width, height, rs.format.rgb8, freq)
 
     def get_single_frame(self):
@@ -34,6 +33,14 @@ class RealSenseCamera:
         return depth_image, color_image
 
 
+    def align_depth2color(self):
+        pass
+
+    def post_process(self):
+        pass
+
+    def calibratin(self):
+        pass
 
 # Test Function for camera
 def main():

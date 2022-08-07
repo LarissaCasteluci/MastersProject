@@ -70,7 +70,8 @@ def read_jacquard_data():
 
 def get_camera_data():  # returns Images
     camera = RealSenseCamera()
-    depth, color = camera.get_single_frame()
+    #depth, color = camera.get_single_frame()
+    depth, color = camera.align_depth2color()
     color = format_rgb_data(color)
     depth = format_depth_data(depth)
     return depth, color

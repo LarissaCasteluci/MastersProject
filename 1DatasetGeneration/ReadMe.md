@@ -14,7 +14,7 @@ docker run --rm --interactive \
            --volume "$(pwd)/original_repos/kubric:/kubric" \
            --volume "$(pwd)/1DatasetGeneration:/1DatasetGeneration" \
            kubricdockerhub/kubruntu \
-           /usr/bin/python3 /1DatasetGeneration/kubric_hello_world.py
+           /usr/bin/python3 /1DatasetGeneration/src/main.py
 ```
 
 Step by step in Development:

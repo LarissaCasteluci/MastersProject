@@ -21,7 +21,9 @@ if __name__ == "__main__":
     for i in range(1):  #
         x: int = random.randint(0, n_files - 1)
         urdf_path: str = urdf_files[x]
-        obj_path: str = urdf_path.replace(".urdf", ".obj")
+        obj_name: str = Path(urdf_path).stem
+        DatasetGen.add_objects(obj_name)
+        DatasetGen.call_renderer()
 
 
     # 2. Loading the new objects in the assets folder

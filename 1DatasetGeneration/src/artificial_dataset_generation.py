@@ -31,7 +31,7 @@ class ArtificialDatasetGeneration:
 
         self.path_name = "/1DatasetGeneration/output_pipeline/"
 
-
+        self.walls = []
 
     def config_scene(self):
         self.scene += kb.Cube(name="floor", scale=(10, 10, 0.1),

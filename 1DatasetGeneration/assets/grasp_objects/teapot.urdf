@@ -10,13 +10,13 @@
         <visual>
             <origin xyz="0 0 0" />
             <geometry>
-                <mesh filename="visual_geometry.obj" />
+                <mesh filename="teapot_visual.obj" />
             </geometry>
         </visual>
         <collision>
             <origin xyz="0 0 0" />
             <geometry>
-                <mesh filename="collision_geometry.obj" />
+                <mesh filename="teapot_collision.obj" />
             </geometry>
         </collision>
     </link>

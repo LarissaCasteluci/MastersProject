@@ -10,11 +10,11 @@ from artificial_dataset_generation import ArtificialDatasetGeneration
 
 if __name__ == "__main__":
     logging.basicConfig(level="INFO")
-    DatasetGen = ArtificialDatasetGeneration()
+    DatasetGen = ArtificialDatasetGeneration('tests')
     DatasetGen.config_scene()
 
     # Load the list of available
-    path_assets = Path(os.path.abspath(__file__)).parent.parent / "assets"
+    path_assets = Path(os.path.abspath(__file__)).parent.parent / "assets" / "grasp_objects"
     urdf_files = glob.glob(str(path_assets) + '/*.urdf')
     n_files = len(urdf_files)
 
@@ -24,7 +24,6 @@ if __name__ == "__main__":
         obj_name: str = Path(urdf_path).stem
         DatasetGen.add_objects(obj_name)
         DatasetGen.call_renderer()
-
 
     # 2. Loading the new objects in the assets folder
     # 3. Call Simulation -> Wait until objects are stabilized (ADD walls!)

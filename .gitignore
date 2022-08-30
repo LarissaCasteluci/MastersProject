@@ -1,4 +1,5 @@
 # Project Specific
+1DatasetGeneration/outputs/
 devel/
 build/
 .catkin_workspace

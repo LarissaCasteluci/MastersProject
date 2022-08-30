@@ -19,7 +19,7 @@ class ArtificialDatasetGeneration:
     renderer: KubricRenderer
     simulator: KubricSimulator
 
-    def __init__(self):
+    def __init__(self, output_dir: str):
         # Scene framerate and length
         self.scene = kb.Scene(resolution=(256, 256))
         self.scene.frame_end = 20  # < numbers of frames to render
@@ -29,7 +29,7 @@ class ArtificialDatasetGeneration:
         self.rng = np.random.default_rng()
         self.velocity = self.rng.uniform([-1, -1, 0], [1, 1, 0])
 
-        self.path_name = "/1DatasetGeneration/output_pipeline/"
+        self.path_name = f"/1DatasetGeneration/outputs/{output_dir}"
 
         self.walls = []
 
@@ -71,13 +71,14 @@ class ArtificialDatasetGeneration:
             self.scene.remove(wall)
 
     def add_objects(self, asset_name: str):
-        scale = 1  # scale = 0.04
+        #scale = 1
+        scale = 0.04
         obj = kb.FileBasedObject(
           asset_id=asset_name,
-          render_filename=f"/1DatasetGeneration/assets/{asset_name}.obj",
+          render_filename=f"/1DatasetGeneration/assets/grasp_objects/{asset_name}_visual.obj",
           bounds=((-1, -1, 0), (1, 1, 1)),
           position=(0, 0, 1), # position=(0, 0, 0.2),
-          simulation_filename=f"/1DatasetGeneration/assets/{asset_name}.urdf",
+          simulation_filename=f"/1DatasetGeneration/assets/grasp_objects/{asset_name}.urdf",
           scale=(scale, scale, scale),
           material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color()),
           velocity=self.velocity)
@@ -96,11 +97,9 @@ class ArtificialDatasetGeneration:
 
         spawn_region = [[-2, -2, 5], [2, 2, 10]]
 
-        #self.renderer.save_state(self.path_name + "helloworld0.blend")
         kb.move_until_no_overlap(self.grasping_obj, self.simulator, spawn_region=spawn_region)
         self.simulator.run()
 
-        # --- render (and save the blender file)
         self.renderer.save_state(self.path_name + "helloworld1.blend")
         frame = self.renderer.render()
         kb.write_image_dict(frame, self.path_name)

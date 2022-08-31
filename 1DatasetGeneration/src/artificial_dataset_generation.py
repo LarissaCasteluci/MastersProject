@@ -6,7 +6,9 @@ import numpy as np
 from kubric.renderer.blender import Blender as KubricRenderer
 from kubric.simulator.pybullet import PyBullet as KubricSimulator
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
+import shutil
+import os
 
 
 class ArtificialDatasetGeneration:
@@ -19,17 +21,25 @@ class ArtificialDatasetGeneration:
     renderer: KubricRenderer
     simulator: KubricSimulator
 
-    def __init__(self, output_dir: str):
+    def __init__(self,
+                 output_dir: str,
+                 resolution: Tuple[int, int] = (256, 256),
+                 frame_end: int = 20,
+                 frame_rate: int = 1,
+                 step_rate: int = 240):
+
         # Scene framerate and length
-        self.scene = kb.Scene(resolution=(256, 256))
-        self.scene.frame_end = 20  # < numbers of frames to render
-        self.scene.frame_rate = 1  # < rendering framerate
-        self.scene.step_rate = 240  # < simulation total steps
+        self.scene = kb.Scene(resolution=resolution)
+        self.scene.frame_end = frame_end  # < numbers of frames to render
+        self.scene.frame_rate = frame_rate  # < rendering framerate
+        self.scene.step_rate = step_rate  # < simulation total steps
 
         self.rng = np.random.default_rng()
         self.velocity = self.rng.uniform([-1, -1, 0], [1, 1, 0])
 
         self.path_name = f"/1DatasetGeneration/outputs/{output_dir}"
+        if os.path.isdir(self.path_name):
+            shutil.rmtree(self.path_name)
 
         self.walls = []
 
@@ -90,6 +100,11 @@ class ArtificialDatasetGeneration:
         self.scene.remove(self.grasping_obj)
 
     def call_renderer(self):
+
+        # Remove output folder to make sure the data generated is new
+        if os.path.isdir(self.path_name):
+            shutil.rmtree(self.path_name)
+
         self.add_walls()
 
         self.renderer = KubricRenderer(self.scene)
@@ -100,7 +115,7 @@ class ArtificialDatasetGeneration:
         kb.move_until_no_overlap(self.grasping_obj, self.simulator, spawn_region=spawn_region)
         self.simulator.run()
 
-        self.renderer.save_state(self.path_name + "helloworld1.blend")
+        #self.renderer.save_state(self.path_name + "helloworld1.blend")
         frame = self.renderer.render()
         kb.write_image_dict(frame, self.path_name)
         self.remove_walls()

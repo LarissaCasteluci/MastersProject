@@ -8,8 +8,9 @@ class TypesGenerator(Enum):
 
 
 class ProposalGenerator:
-    def __init__(self, generator : TypesGenerator):
-        pass
+    def __init__(self, generator: TypesGenerator):
+        self.generator = generator
+
 
     def generate_proposals(self, number: int): #-> List[]
         pass

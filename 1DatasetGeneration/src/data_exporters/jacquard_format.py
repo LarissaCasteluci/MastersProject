@@ -1,6 +1,8 @@
-from base_data_exporter import BaseDataExporter
+from .base_data_exporter import BaseDataExporter
 import numpy as np
+import shutil, os, sys
 from dataclasses import dataclass
+
 
 pixels = float
 degrees = float
@@ -32,21 +34,29 @@ class ObjectData:
 
 
 class JacquardDataExporter(BaseDataExporter):
-    object_id: int
-    annotations_list: list[ObjectData]
+    objects_id: list[int]
+    objects_generated_data: list[ObjectData]
     save_path: str
     n_samples_per_object: int
 
     def __init__(self, save_path: str, n_samples_per_object: int = 5):
         self.save_path = save_path
         self.n_samples_per_object = n_samples_per_object
-        self.annotations_list = []
+        self.objects_generated_data = []
+
+        if not os.path.isdir(self.save_path):
+            os.mkdir(self.save_path)
+        else:
+            sys.exit("Output Folder already exists")
+
 
     def add_new_object(self):
+        # generate new id for the object
         pass
 
     def save(self):
         pass
+
 
 
 

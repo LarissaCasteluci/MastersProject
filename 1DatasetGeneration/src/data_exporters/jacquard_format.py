@@ -1,21 +1,9 @@
 from .base_data_exporter import BaseDataExporter
+from ..base.jacquard import GraspAnnotation
 import numpy as np
 import shutil, os, sys
 from dataclasses import dataclass
 
-
-pixels = float
-degrees = float
-centimeters = float
-
-
-@dataclass
-class GraspAnnotation:
-    x: pixels
-    y: pixels
-    theta: degrees
-    opening: centimeters
-    jaws_size: centimeters
 
 
 @dataclass

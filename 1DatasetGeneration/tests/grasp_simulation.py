@@ -16,7 +16,7 @@ class ArtificialDatasetGeneration:
     def __init__(self):
         # Scene framerate and length
         self.scene = kb.Scene(resolution=(256, 256))
-        self.scene.frame_end = 20  # < numbers of frames to render
+        self.scene.frame_end = 50  # < numbers of frames to render
         self.scene.frame_rate = 1  # < rendering framerate
         self.scene.step_rate = 240  # < simulation total steps
 
@@ -54,14 +54,14 @@ class ArtificialDatasetGeneration:
         rng = np.random.default_rng()
         velocity = rng.uniform([-1, -1, 0], [1, 1, 0])
 
-        #scale = 0.04
-        scale = 1
+        scale = 0.04
+        #scale = 1
         obj = kb.FileBasedObject(
           asset_id="G6",
-          render_filename="/1DatasetGeneration/assets/visual_geometry.obj",
+          render_filename="/1DatasetGeneration/assets/grasp_objects/A0_visual.obj",
           bounds=((-1, -1, 0), (1, 1, 1)),
           position=(0, 0, 1), # position=(0, 0, 0.2),
-          simulation_filename="/1DatasetGeneration/assets/teapot.urdf",
+          simulation_filename="/1DatasetGeneration/assets/grasp_objects/A0.urdf",
           scale=(scale, scale, scale),
           material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color()),
           velocity=rng.uniform([-1, -1, 0], [1, 1, 0])) #velocity=rng.uniform([0,0,0], [0,0,0]))
@@ -76,7 +76,7 @@ class ArtificialDatasetGeneration:
 
         spawn_region = [[-2, -2, 5], [2, 2, 10]]
 
-        path_name = "/1DatasetGeneration/output_pipeline/"
+        path_name = "/1DatasetGeneration/outputs/output_tests_simplified/"
         renderer.save_state(path_name + "helloworld0.blend")
         kb.move_until_no_overlap(self.control_obj, simulator, spawn_region=spawn_region)
         simulator.run()

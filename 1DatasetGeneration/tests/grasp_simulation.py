@@ -4,7 +4,7 @@ import logging
 import kubric as kb
 import numpy as np
 from kubric.renderer.blender import Blender as KubricRenderer
-from kubric.simulator.pybullet import PyBullet as KubricSimulator
+from pybullet_simulator import PyBullet as KubricSimulator
 from pathlib import Path
 
 
@@ -76,15 +76,15 @@ class ArtificialDatasetGeneration:
 
         spawn_region = [[-2, -2, 5], [2, 2, 10]]
 
-        path_name = "/1DatasetGeneration/outputs/output_tests_simplified/"
+        path_name = "/1DatasetGeneration/outputs/output_tests_20220905"
         renderer.save_state(path_name + "helloworld0.blend")
         kb.move_until_no_overlap(self.control_obj, simulator, spawn_region=spawn_region)
         simulator.run()
 
         # --- render (and save the blender file)
         renderer.save_state(path_name + "helloworld1.blend")
-        frame = renderer.render()
-        kb.write_image_dict(frame, path_name)
+        #frame = renderer.render()
+        #kb.write_image_dict(frame, path_name)
 
 
 if __name__ == "__main__":

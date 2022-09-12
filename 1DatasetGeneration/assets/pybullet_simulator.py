@@ -37,6 +37,8 @@ class PyBullet(core.View):
   """Adds physics simulation on top of kb.Scene using PyBullet."""
 
   def __init__(self, scene: core.Scene, scratch_dir=tempfile.mkdtemp()):
+    self.previous_quaternion = [0, 0, 0, 0]
+    self.quaternion_sum = [0, 0, 0, 0]
     self.scratch_dir = scratch_dir
     self.physics_client = pb.connect(pb.DIRECT)  # pb.GUI
 
@@ -57,7 +59,7 @@ class PyBullet(core.View):
     try:
       pb.disconnect()
     except Exception:  # pylint: disable=broad-except
-      pass  # cleanup code. ignore errors
+      print("not closing connection")  # cleanup code. ignore errors
 
   @singledispatchmethod
   def add_asset(self, asset: core.Asset) -> Optional[int]:
@@ -193,6 +195,9 @@ class PyBullet(core.View):
       A dict of all animations and a list of all collision events.
     """
 
+    self.quaternion_sum = [0, 0, 0, 0]
+    flag = True
+
     frame_end = self.scene.frame_end if frame_end is None else frame_end
     steps_per_frame = self.scene.step_rate // self.scene.frame_rate
     max_step = (frame_end - frame_start + 1) * steps_per_frame
@@ -232,8 +237,25 @@ class PyBullet(core.View):
           position, quaternion = self.get_position_and_rotation(obj_idx)
           velocity, angular_velocity = self.get_velocities(obj_idx)
 
-          if quaternion != (1.0, 0.0, 0.0, 0.0):
-            print("quaternion", quaternion)
+          if current_step > 240*5:
+            if quaternion != (1.0, 0.0, 0.0, 0.0):
+              print(quaternion)
+              if flag:
+                flag = False
+                self.previous_quaternion[0] = quaternion[0]
+                self.previous_quaternion[1] = quaternion[1]
+                self.previous_quaternion[2] = quaternion[2]
+                self.previous_quaternion[3] = quaternion[3]
+
+              self.quaternion_sum[0] += abs(quaternion[0] - self.previous_quaternion[0])
+              self.quaternion_sum[1] += abs(quaternion[1] - self.previous_quaternion[0])
+              self.quaternion_sum[2] += abs(quaternion[2] - self.previous_quaternion[0])
+              self.quaternion_sum[3] += abs(quaternion[3] - self.previous_quaternion[0])
+
+              self.previous_quaternion[0] = quaternion[0]
+              self.previous_quaternion[1] = quaternion[1]
+              self.previous_quaternion[2] = quaternion[2]
+              self.previous_quaternion[3] = quaternion[3]
 
           animation[obj_idx]["position"].append(position)
           animation[obj_idx]["quaternion"].append(quaternion)

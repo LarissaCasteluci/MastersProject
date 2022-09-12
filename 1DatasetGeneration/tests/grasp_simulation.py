@@ -83,8 +83,8 @@ class ArtificialDatasetGeneration:
 
         # --- render (and save the blender file)
         renderer.save_state(path_name + "helloworld1.blend")
-        #frame = renderer.render()
-        #kb.write_image_dict(frame, path_name)
+        frame = renderer.render()
+        kb.write_image_dict(frame, path_name)
 
 
 if __name__ == "__main__":

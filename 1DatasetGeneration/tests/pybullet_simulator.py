@@ -37,6 +37,7 @@ class PyBullet(core.View):
   """Adds physics simulation on top of kb.Scene using PyBullet."""
 
   def __init__(self, scene: core.Scene, scratch_dir=tempfile.mkdtemp()):
+    self.quaternion_sum = [0, 0, 0, 0]
     self.scratch_dir = scratch_dir
     self.physics_client = pb.connect(pb.DIRECT)  # pb.GUI
 
@@ -233,7 +234,10 @@ class PyBullet(core.View):
           velocity, angular_velocity = self.get_velocities(obj_idx)
 
           if quaternion != (1.0, 0.0, 0.0, 0.0):
-            print("quaternion", quaternion)
+            self.quaternion_sum[0] += abs(quaternion[0])
+            self.quaternion_sum[1] += abs(quaternion[1])
+            self.quaternion_sum[2] += abs(quaternion[2])
+            self.quaternion_sum[3] += abs(quaternion[3])
 
           animation[obj_idx]["position"].append(position)
           animation[obj_idx]["quaternion"].append(quaternion)

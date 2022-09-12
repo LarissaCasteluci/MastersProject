@@ -1,8 +1,6 @@
 # TODO: Add License
 from enum import Enum
-from typing import List, Tuple
-from ..base.jacquard import GraspAnnotation
-import random
+from typing import Tuple
 
 
 class TypesGenerator(Enum):

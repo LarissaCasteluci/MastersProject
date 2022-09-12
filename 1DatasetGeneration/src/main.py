@@ -6,7 +6,7 @@ from pathlib import Path
 import random
 import os
 from artificial_dataset_generation import ArtificialDatasetGeneration
-from data_exporters.jacquard_format import JacquardDataExporter, GraspAnnotation
+from data_exporters.jacquard_format import JacquardDataExporter
 from grasp_proposal_generator.proposal_generator import ProposalGenerator, TypesGenerator
 from typing import Tuple
 
@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     # Load Auxiliary Classes
     GraspProposal = ProposalGenerator(TypesGenerator.RANDOM)
-    Exporter = JacquardDataExporter(str(src_folder.parent / "outputs" / "jacquard_output"))
+    Exporter = JacquardDataExporter(str(src_folder.parent / "outputs" / "jacquard_output1"))
     DatasetGen = ArtificialDatasetGeneration('tmp', frame_end=frame_end)
     DatasetGen.config_scene()
 

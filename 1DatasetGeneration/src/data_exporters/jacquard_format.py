@@ -1,9 +1,8 @@
 from .base_data_exporter import BaseDataExporter
-from ..base.jacquard import GraspAnnotation
+from .jacquard_data import GraspAnnotation
 import numpy as np
 import shutil, os, sys
 from dataclasses import dataclass
-
 
 
 @dataclass

@@ -4,7 +4,7 @@ import logging
 import kubric as kb
 import numpy as np
 from kubric.renderer.blender import Blender as KubricRenderer
-from kubric.simulator.pybullet import PyBullet as KubricSimulator
+from simulators.pybullet_simulator import PyBullet as KubricSimulator
 from pathlib import Path
 from typing import List, Tuple
 import shutil

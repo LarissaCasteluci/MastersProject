@@ -198,6 +198,9 @@ class PyBullet(core.View):
     max_step = (frame_end - frame_start + 1) * steps_per_frame
 
     obj_idxs = [pb.getBodyUniqueId(i) for i in range(pb.getNumBodies())]
+
+    print("NAME MY OBJECTS",  obj_idxs)
+
     animation = {obj_id: {"position": [], "quaternion": [], "velocity": [], "angular_velocity": []}
                  for obj_id in obj_idxs}
 

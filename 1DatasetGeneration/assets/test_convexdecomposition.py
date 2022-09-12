@@ -4,7 +4,9 @@ import itertools
 import subprocess
 import time
 
-file = "~/MastersProject/1DatasetGeneration/assets/grasp_objects/A0_visual.obj"
+obj= "C0"
+
+file = f"~/MastersProject/1DatasetGeneration/assets/grasp_objects/{obj}.obj"
 
 #-h <n>                  : Maximum number of output convex hulls. Default is 32
 #-r <voxelresolution>    : Total number of voxels to use. Default is 100,000
@@ -20,12 +22,20 @@ file = "~/MastersProject/1DatasetGeneration/assets/grasp_objects/A0_visual.obj"
 #-l <true/false>         : If set to false, no logging will be displayed.
 
 # Parameters
-lh = [ 10, 15, 20, 25, 30, 32, 35, 40]
-lr = [10000, 50000, 80000, 100000, 120000]
-ls = ["true", "false"]
-lf = ["flood", "surface", "raycast"]
-lv = [32, 48, 64, 80]
-lp = ["true", "false"]
+#lh = [ 10, 15, 20, 25, 30, 32, 35, 40]
+#lr = [10000, 50000, 80000, 100000, 120000]
+#ls = ["true", "false"]
+#lf = ["flood", "surface", "raycast"]
+#lv = [32, 48, 64, 80]
+#lp = ["true", "false"]
+
+lh = [5]
+lr = [10000]
+ls = ["true"]
+lf = ["flood"]
+lv = [64]
+lp = ["true"]
+
 l = "false"
 
 params = [lh, lr, ls, lf, lv, lp]
@@ -42,6 +52,6 @@ for i in permutations:
     print(process.communicate())
     print(process.returncode)
 
-    process2 = subprocess.Popen(f"mv /home/larissa/MastersProject/1DatasetGeneration/assets/decomp.obj /home/larissa/MastersProject/1DatasetGeneration/assets/convex_hull_tests/A0_{h}_{r}_{s}_{f}_{v}_{p}.obj",
+    process2 = subprocess.Popen(f"mv /home/larissa/MastersProject/1DatasetGeneration/assets/decomp.obj /home/larissa/MastersProject/1DatasetGeneration/assets/convex_hull_tests/{obj}_{h}_{r}_{s}_{f}_{v}_{p}.obj",
                                shell=True, stdout=subprocess.PIPE)
     process2.wait()

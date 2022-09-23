@@ -75,19 +75,20 @@ if __name__ == "__main__":
               #simulation_filename="/1DatasetGeneration/assets/grasp_objects/samples/teapot.urdf",
               scale=(scale, scale, scale),
               material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color()),
-              mass=100,
-              friction=0.9,
-              restitution=0.01,
-              bounds=((-1, -1, -1), (1, 1, 1)))
+              #mass=1,
+              #friction=0.9,
+              #restitution=0.01,
+              #bounds=((-1, -1, -1), (1, 1, 1))
+        )
 
         cube = kb.Cube(scale=30, velocity=velocity, material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color()))
-        scene += cube
-        #scene += obj
+        #scene += cube
+        scene += obj
         previous_obj = obj
 
-        path_name = "/1DatasetGeneration/outputs/output_tests_20220911"
+        path_name = "/1DatasetGeneration/outputs/output_tests_20220921"
         spawn_region = [[-20, -20, -50], [20, 20, 100]]
-        kb.move_until_no_overlap(cube, simulator, spawn_region=spawn_region)
+        kb.move_until_no_overlap(obj, simulator, spawn_region=spawn_region)
         simulator.run()
 
         data.append(simulator.quaternion_sum[0])
@@ -101,6 +102,6 @@ if __name__ == "__main__":
 
         frame = renderer.render()
         kb.write_image_dict(frame, path_name)
-        renderer.save_state("/1DatasetGeneration/outputs/output_tests_20220911/helloworld1.blend")
+        renderer.save_state("/1DatasetGeneration/outputs/output_tests_20220921/helloworld1.blend")
 
         break

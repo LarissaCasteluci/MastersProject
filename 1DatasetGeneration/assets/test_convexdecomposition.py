@@ -29,11 +29,11 @@ file = f"~/MastersProject/1DatasetGeneration/assets/grasp_objects/{obj}.obj"
 #lv = [32, 48, 64, 80]
 #lp = ["true", "false"]
 
-lh = [5]
+lh = [1]
 lr = [10000]
 ls = ["true"]
 lf = ["flood"]
-lv = [64]
+lv = [32]
 lp = ["true"]
 
 l = "false"

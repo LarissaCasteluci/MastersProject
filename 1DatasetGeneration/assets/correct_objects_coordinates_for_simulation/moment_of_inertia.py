@@ -33,8 +33,7 @@ Iyz = sum(coords[1]*coords[2])/N
 Ixz = sum(coords[0]*coords[2])/N
 
 
-
 I = np.array([[Ix, Ixy, Ixz],[Ixy, Iy, Iyz],[Ixz, Iyz, Iz]])
 print(I)
 
-
+#

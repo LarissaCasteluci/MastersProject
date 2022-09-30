@@ -10,6 +10,7 @@
     7. Generate URDF File
     8. Run Simulation and test!
 """
+import os
 import subprocess
 from pathlib import Path
 import re
@@ -18,15 +19,16 @@ import trimesh
 import numpy as np
 import pdb
 import matplotlib.pyplot as plt
+import xml.etree.ElementTree as ET
+
+from trimesh.voxel import VoxelGrid
 
 path = Path("/home/larissa/MastersProject/original_repos/egadevalset/egad_eval_set")
-file = "A1.obj"
-file_tmp_1 = f"A1_tmp1.obj"
+o = "A0"
+file = "A0.obj"
+file_tmp_1 = f"A0_tmp1.obj"
+file_visual = f"A0_visual.obj"
 
-#path = Path("/workspaces/MastersProject/1DatasetGeneration/assets/grasp_objects")
-#obj_name = 'A1'
-#file = f"{obj_name}_visual.obj"
-#file_tmp_1 = f"{obj_name}_tmp1.obj"
 
 coords = []
 
@@ -43,17 +45,21 @@ for line in obj:
 
 coords = np.asarray(coords)
 
-x, y, z = coords[0:3]
+x = coords[:, 0]
+y = coords[:, 1]
+z = coords[:, 2]
+
 norm = max([(np.max(x) - np.min(x)), (np.max(y) - np.min(y)), (np.max(z) - np.min(z))])
+print(norm)
 coords = coords / norm
 
-
 path = Path("/home/larissa/MastersProject/1DatasetGeneration/assets/grasp_objects")
+
 # Save normalized file
-with open(str(path.parent / 'correct_objects_coordinates_for_simulation'/ 'tmp'/ file_tmp_1), 'w') as f:
+with open(str(path.parent / 'correct_objects_coordinates_for_simulation'/'tmp'/ file_tmp_1), 'w') as f:
     for xyz in coords:
         f.write(f"v {xyz[0]} {xyz[1]} {xyz[2]}\n")
-    
+
     for line in obj:
         r = re.search(r"(?:f)(.+)", line)
         if r:
@@ -62,7 +68,6 @@ with open(str(path.parent / 'correct_objects_coordinates_for_simulation'/ 'tmp'/
 # Voxelize
 mesh = trimesh.load(str(path.parent / 'correct_objects_coordinates_for_simulation'/'tmp'/ file_tmp_1))
 angel_voxel = mesh.voxelized(0.01)
-#print(angel_voxel.points) # Verify if it is ok
 
 # Calculate Center of Mass
 n_points = len(angel_voxel.points)
@@ -76,38 +81,63 @@ for n in angel_voxel.points:
 
 print(cm)
 
-x, y, z = [], [], []
-for n in angel_voxel.points:
-    x.append(n[0])
-    y.append(n[1])
-    z.append(n[2])
+x = angel_voxel.points[:,0]
+y = angel_voxel.points[:,1]
+z = angel_voxel.points[:,2]
 
-xn, yn, zn = [], [], []
-for n in range(len(x)):
-    xn.append(x[n] - cm[0])
-    yn.append(y[n] - cm[1])
-    zn.append(z[n] - cm[2])
+xn = coords[:, 0] - cm[0]
+yn = coords[:, 1] - cm[1]
+zn = coords[:, 2] - cm[2]
 
 print("xn:", max(xn) - min(xn))
 print("yn:", max(yn) - min(yn))
 print("zn:", max(zn) - min(zn))
 
+print("max xn:", max(xn))
+print("max yn:", max(yn))
+print("max zn:", max(zn))
+
+print("min xn:", min(xn))
+print("min yn:", min(yn))
+print("min zn:", min(zn))
+
 norm_coords = np.asarray([xn, yn, zn])
 coords = np.transpose(norm_coords)
-Ix = sum(m*(coords[1]**2 + coords[2]**2))
-Iy = sum(m*(coords[0]**2 + coords[2]**2))
-Iz = sum(m*(coords[0]**2 + coords[1]**2))
-Ixy = sum(m*coords[0]*coords[1])
-Iyz = sum(m*coords[1]*coords[2])
-Ixz = sum(m*coords[0]*coords[2])
+x = coords[:, 0]
+y = coords[:, 1]
+z = -coords[:, 2]
+Ix = m*(np.dot(y.transpose(), y) + np.dot(z.transpose(), z))
+Iy = m*(np.dot(x.transpose(), x) + np.dot(z.transpose(), z))
+Iz = m*(np.dot(x.transpose(), x) + np.dot(y.transpose(), y))
+Ixy = m*(np.dot(x.transpose(), y))
+Iyz = m*(np.dot(y.transpose(), z))
+Ixz = m*(np.dot(x.transpose(), z))
 
-I = np.array([[Ix, Ixy, Ixz],[Ixy, Iy, Iyz],[Ixz, Iyz, Iz]])
+I = np.array([[Ix, -Ixy, -Ixz], [-Ixy, Iy, -Iyz], [-Ixz, -Iyz, Iz]])
 print(I)
 
+#Make sure we remove tmp file
+#os.remove(str(path.parent / 'correct_objects_coordinates_for_simulation'/'tmp'/ file_tmp_1))
+
+# Save obj
+with open(str(path.parent / 'correct_objects_coordinates_for_simulation'/ 'tmp'/ file_visual), 'w') as f:
+    f.write("mtllib shinyred.mtl\n\n")
+    for n in range(len(xn)):
+        f.write(f"v {xn[n]} {yn[n]} {zn[n]}\n")
+
+    f.write("\nusemtl shinyred\n\n")
+    for line in obj:
+        r = re.search(r"(?:f)(.+)", line)
+        if r:
+            f.write(line)
+
+#import shutil
+#shutil.copy(str(path.parent / 'correct_objects_coordinates_for_simulation'/'tmp'/ file_tmp_1),
+#            str(path.parent / 'correct_objects_coordinates_for_simulation'/'tmp'/ file_visual))
+
 # VDHC
-h, r, s, f, v, p, l = 1, 10000, "true", "flood", 128, "true", "false"
-original_file = "/home/larissa/MastersProject/1DatasetGeneration/assets/correct_objects_coordinates_for_simulation/tmp/A0_tmp1.obj"
-obj = "A0_collision.obj"
+h, r, s, f, v, p, l = 1, 10000, "true", "flood", 64, "true", "false"
+original_file = str(path.parent / 'correct_objects_coordinates_for_simulation'/ 'tmp'/ file_visual)
 
 process = subprocess.Popen(
     f"/home/larissa/Git/v-hacd/app/TestVHACD {original_file} -h {h} -r {r} -s {s} -f {f} -v {v} -p {p} -l {l}",
@@ -119,6 +149,36 @@ print(process.returncode)
 
 process2 = subprocess.Popen(
     f"mv /home/larissa/MastersProject/1DatasetGeneration/assets/correct_objects_coordinates_for_simulation/decomp.obj " +
-    f"/home/larissa/MastersProject/1DatasetGeneration/assets/correct_objects_coordinates_for_simulation/tmp/{obj}_{h}_{r}_{s}_{f}_{v}_{p}.obj",
+    f"/home/larissa/MastersProject/1DatasetGeneration/assets/correct_objects_coordinates_for_simulation/tmp/{o}_{h}_{r}_{s}_{f}_{v}_{p}.obj",
     shell=True, stdout=subprocess.PIPE)
 process2.wait()
+
+process3 = subprocess.Popen(
+    f"rm /home/larissa/MastersProject/1DatasetGeneration/assets/correct_objects_coordinates_for_simulation/decomp.stl ",shell=True, stdout=subprocess.PIPE)
+process3.wait()
+
+
+file_to_create = str(path.parent / 'correct_objects_coordinates_for_simulation'/'tmp'/(o + ".urdf"))
+root = ET.Element("robot", name=o)
+link = ET.SubElement(root, "link", name="base")
+
+inertial = ET.SubElement(link, "inertial")
+origin = ET.SubElement(inertial, "origin", xyz="-0.0 -0.0 -0.0")
+mass = ET.SubElement(inertial, "mass", value="1")
+inertia = ET.SubElement(inertial, "inertia",
+                        ixx=str(Ix), ixy=str(-Ixy), ixz=str(-Ixz), iyy=str(Iy),
+                        iyz=str(-Iyz), izz=str(Iz))
+
+visual = ET.SubElement(link, "visual")
+origin = ET.SubElement(visual, "origin", xyz="-0.0 -0.0 -0.0")
+geometry = ET.SubElement(visual, "geometry")
+mesh = ET.SubElement(geometry, "mesh", filename=str(path.parent / 'correct_objects_coordinates_for_simulation'/'tmp'/ file_visual))
+collision = ET.SubElement(link, "collision")
+origin = ET.SubElement(collision, "origin", xyz="0.0 0.0 0.0")
+geometry = ET.SubElement(collision, "geometry")
+mesh = ET.SubElement(geometry, "mesh", filename=f"/home/larissa/MastersProject/1DatasetGeneration/assets/correct_objects_coordinates_for_simulation/tmp/{o}_{h}_{r}_{s}_{f}_{v}_{p}.obj")
+
+tree = ET.ElementTree(root)
+ET.indent(tree, '  ')
+tree.write(file_to_create)
+print("saved ", file_to_create)

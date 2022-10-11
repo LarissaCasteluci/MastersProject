@@ -149,8 +149,7 @@ process3.wait()
 
 
 file_to_create = str(save_path /(o + ".urdf"))
-root = ET.Element("robot", name=o)
-link = ET.SubElement(root, "link", name="base")
+
 
 inertial = ET.SubElement(link, "inertial")
 origin = ET.SubElement(inertial, "origin", xyz="-0.0 -0.0 -0.0")

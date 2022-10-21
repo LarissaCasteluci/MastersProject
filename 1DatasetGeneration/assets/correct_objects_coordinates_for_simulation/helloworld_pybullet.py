@@ -34,6 +34,13 @@ p.setJointMotorControl2(bodyUniqueId=cartesian,
                            targetVelocity=0.5,
                            force=10)
 
+p.setJointMotorControl2(bodyUniqueId=cartesian,
+                        jointIndex=5,
+                        controlMode=p.VELOCITY_CONTROL,
+                        targetVelocity=0.5,
+                        force=10.0)
+
+
 jointPosition=0
 for i in range(simulation_time*240):
     p.stepSimulation()
@@ -41,6 +48,7 @@ for i in range(simulation_time*240):
     cubePos, cubeOrn = p.getBasePositionAndOrientation(cartesian)
 
     if p.getJointState(bodyUniqueId=cartesian, jointIndex=3)[0] > 2:
+
 
         p.setJointMotorControl2(bodyUniqueId=cartesian,
                                 jointIndex=3,

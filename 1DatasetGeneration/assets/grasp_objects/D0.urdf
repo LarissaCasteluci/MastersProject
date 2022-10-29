@@ -1,0 +1,21 @@
+<robot name="D0">
+  <link name="base">
+    <inertial>
+      <origin xyz="-0.0 -0.0 -0.0" />
+      <mass value="1" />
+      <inertia ixx="0.020737985219731938" ixy="1.0388680909318198e-05" ixz="1.6875923533795545e-06" iyy="0.018614518514764825" iyz="1.5339888513617993e-05" izz="0.020901833429570717" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.0 -0.0 -0.0" />
+      <geometry>
+        <mesh filename="/home/larissa/MastersProject/1DatasetGeneration/assets/grasp_objects/D0_visual.obj" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="/home/larissa/MastersProject/1DatasetGeneration/assets/grasp_objects/D0_150_100000_true_flood_64_true.obj" />
+      </geometry>
+    </collision>
+  </link>
+</robot>

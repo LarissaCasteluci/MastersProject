@@ -21,7 +21,7 @@ import xml.etree.ElementTree as ET
 
 path = Path("/home/larissa/MastersProject/original_repos/egadevalset/egad_eval_set")
 save_path = Path("/home/larissa/MastersProject/1DatasetGeneration/assets/grasp_objects")
-o = "A7"
+o = "G6"
 file = f"{o}.obj"
 file_tmp_1 = f"{o}_tmp1.obj"
 file_visual = f"{o}_visual.obj"
@@ -144,12 +144,14 @@ process2 = subprocess.Popen(
 process2.wait()
 
 process3 = subprocess.Popen(
-    f"rm /home/larissa/MastersProject/1DatasetGeneration/assets/grasp_objects/decomp.stl ",shell=True, stdout=subprocess.PIPE)
+    f"rm /home/larissa/MastersProject/1DatasetGeneration/assets/grasp_objects/decomp.stl ", shell=True, stdout=subprocess.PIPE)
 process3.wait()
 
 
 file_to_create = str(save_path /(o + ".urdf"))
 
+root = ET.Element("robot", name=o)
+link = ET.SubElement(root, "link", name="base")
 
 inertial = ET.SubElement(link, "inertial")
 origin = ET.SubElement(inertial, "origin", xyz="-0.0 -0.0 -0.0")

@@ -17,7 +17,7 @@ planeId = p.loadURDF(pybullet_data_path + "plane.urdf")
 cubeStartPos = [0, 0, 1]
 cubeStartOrientation = p.getQuaternionFromEuler([0, 0, 0])
 cartesian = p.loadURDF(gripper_path + "cartesian.urdf", cubeStartPos, cubeStartOrientation)
-boxId2 = p.loadURDF(obj_path + "A6.urdf", [2, 2, 1], cubeStartOrientation)
+boxId2 = p.loadURDF(obj_path + "G6.urdf", [2, 2, 1], cubeStartOrientation)
 
 for n in range(p.getNumJoints(cartesian)):
    print(f"Information Joint {n}", p.getJointInfo(cartesian, n))

@@ -1,11 +1,9 @@
 # https://pybullet.org/Bullet/phpBB3/viewtopic.php?p=42686
 
-import logging
 import kubric as kb
 import numpy as np
 from kubric.renderer.blender import Blender as KubricRenderer
 from simulators.pybullet_simulator import PyBullet as KubricSimulator
-from pathlib import Path
 from typing import List, Tuple
 import shutil
 import os

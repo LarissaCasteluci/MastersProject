@@ -6,8 +6,8 @@ from pathlib import Path
 import random
 import os
 from artificial_dataset_generation import ArtificialDatasetGeneration
-from data_exporters.jacquard_format import JacquardDataExporter
-from grasp_proposal_generator.proposal_generator import ProposalGenerator, TypesGenerator
+from dataset_generation_tools.data_exporters.jacquard_format import JacquardDataExporter
+from dataset_generation_tools.grasp_proposal_generator.proposal_generator import ProposalGenerator, TypesGenerator
 from typing import Tuple
 
 

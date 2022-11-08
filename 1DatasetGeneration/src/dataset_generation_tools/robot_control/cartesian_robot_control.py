@@ -245,24 +245,24 @@ class CartesianControl:
             self.next_movement = Movements.DROP
             self._drop_position()
             print("GO_TO_DROP_POSITION")
-        #
-        # elif (self.next_movement == Movements.DROP and
-        #       self.is_in_movement is False):
-        #
-        #     self.is_in_movement = True
-        #     self.current_movement = Movements.DROP
-        #     self.next_movement = Movements.FINISH
-        #     self._drop()
-        #     print("_drop")
-        #
-        # elif (self.next_movement == Movements.FINISH and
-        #       self.is_in_movement is False):
-        #
-        #     self.is_in_movement = True
-        #     self.current_movement = Movements.FINISH
-        #     self.next_movement = Movements.FINISH
-        #     self.has_performed_grasp_pipeline = True
-        #     print("has_performed_grasp_pipeline")
+
+        elif (self.next_movement == Movements.DROP and
+              self.is_in_movement is False):
+
+            self.is_in_movement = True
+            self.current_movement = Movements.DROP
+            self.next_movement = Movements.FINISH
+            self._drop()
+            print("_drop")
+
+        elif (self.next_movement == Movements.FINISH and
+              self.is_in_movement is False):
+
+            self.is_in_movement = True
+            self.current_movement = Movements.FINISH
+            self.next_movement = Movements.FINISH
+            self.has_performed_grasp_pipeline = True
+            print("has_performed_grasp_pipeline")
 
 
         if self.is_in_movement is True:
@@ -291,26 +291,31 @@ class CartesianControl:
 
 
     def _initial_position(self):
+        global start_xyz_position
 
         self.joints[2].joint_control(3.0, self.current_step, False)  # z
         self.joints[3].joint_control(0.0, self.current_step, False)  # x
         self.joints[4].joint_control(0.0, self.current_step, False)  # y
 
+        # self.joints[2].joint_control(start_xyz_position[0], self.current_step, False)  # z
+        # self.joints[3].joint_control(start_xyz_position[1], self.current_step, False)  # x
+        # self.joints[4].joint_control(start_xyz_position[2], self.current_step, False)  # y
+
 
     def _go_to_grasp_position(self):
 
-        self.joints[3].joint_control(1.7, self.current_step, False)  # x
+        self.joints[3].joint_control(1.7, self.current_step, False)   # x
         self.joints[4].joint_control(-0.1, self.current_step, False)  # y
 
 
     def _perform_grasp_part_1(self):
 
-        self.joints[2].joint_control(0.7, self.current_step, False)  # z
+        self.joints[2].joint_control(0.4, self.current_step, False)  # z
 
     def _perform_grasp_part_2(self):
 
-        self.joints[6].joint_control(-0.5, self.current_step, True)  # right
-        self.joints[7].joint_control(0.5, self.current_step, True)  # left
+        self.joints[6].joint_control(-0.8, self.current_step, True)  # right
+        self.joints[7].joint_control(0.8, self.current_step, True)   # left
 
     def _drop_position(self):
 
@@ -318,14 +323,7 @@ class CartesianControl:
         self.joints[3].joint_control(0.0, self.current_step, False)  # x
         self.joints[4].joint_control(0.0, self.current_step, False)  # y
 
-
     def _drop(self):
-
-        self.joints[2].joint_control(2.9, self.current_step, False)  # z
-        self.joints[3].joint_control(0.0, self.current_step, False)  # x
-        self.joints[4].joint_control(0.0, self.current_step, False)  # y
-
-        self.joints[5].joint_control(0.0, self.current_step, False)  # revolute
 
         self.joints[6].joint_control(0.0, self.current_step, False)  # right
         self.joints[7].joint_control(0.0, self.current_step, False)  # left

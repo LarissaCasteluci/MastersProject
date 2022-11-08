@@ -1,9 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-
-pixels = float
-degrees = float
-centimeters = float
+from basic_types import pixels, degrees, centimeters
 
 
 class JawsSizes(Enum):

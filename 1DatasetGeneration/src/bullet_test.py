@@ -1,7 +1,7 @@
 import pybullet as p
 import time
 import pybullet_data
-from robot_control.cartesian_robot_control import CartesianControl
+from dataset_generation_tools.robot_control.cartesian_robot_control import CartesianControl
 
 
 pybullet_data_path = "/home/larissa/Git/bullet3/data/"
@@ -19,7 +19,7 @@ planeId = p.loadURDF(pybullet_data_path + "plane.urdf")
 cubeStartPos = [0, 0, 1]
 cubeStartOrientation = p.getQuaternionFromEuler([0, 0, 0])
 cartesian = p.loadURDF(gripper_path + "cartesian.urdf", cubeStartPos, cubeStartOrientation)
-boxId2 = p.loadURDF(obj_path + "A6.urdf", [2, 2, 1], cubeStartOrientation)
+boxId2 = p.loadURDF(obj_path + "G2.urdf", [2, 2, 1], cubeStartOrientation)
 
 robot = CartesianControl(cartesian)
 

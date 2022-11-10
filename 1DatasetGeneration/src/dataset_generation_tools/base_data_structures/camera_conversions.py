@@ -1,4 +1,4 @@
-from basic_types import BasicGrasp, BasicGraspInWorldCoordinates
+from .basic_types import BasicGrasp, BasicGraspInWorldCoordinates
 from typing import Tuple
 
 

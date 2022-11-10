@@ -1,14 +1,14 @@
 # TODO: Add License
 from typing import Tuple, List
 import numpy as np
-from grasp_proposal_types import TypesGenerator
+from .grasp_proposal_types import TypesGenerator
 from ..base_data_structures.basic_types import BasicGrasp
 import math
 
 
 class ProposalGenerator:
     generator: TypesGenerator
-    rng: np.Generator
+    #rng: np.Generator
     max_proposals: int
 
     def __init__(self, generator: TypesGenerator, max_proposals: int = 100):
@@ -24,9 +24,7 @@ class ProposalGenerator:
         else:
             grasps = self._generate_gaussian_proposals(size_image)
 
-
         return grasps
-
 
     def _generate_random_proposals(self,
                                    size_image: Tuple[int, int]) -> List[BasicGrasp]:

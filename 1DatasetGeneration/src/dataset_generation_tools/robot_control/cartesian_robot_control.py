@@ -3,6 +3,7 @@ from typing import List
 import pybullet as p
 import sys
 from enum import Enum
+from ..base_data_structures.basic_types import *
 
 
 class JointState(Enum):
@@ -18,6 +19,7 @@ class Joint:
                         force: float = 0,
                         joint_type: str = "prismatic"):
 
+        self._debug: bool = False
         self.bodyUniqueId: int = bodyUniqueId
         self.jointIndex: int = jointIndex
         self.targetVelocity: float = targetVelocity
@@ -35,6 +37,14 @@ class Joint:
             print("Define the bodyUniqueId and jointIndex!")
             sys.exit()
 
+    @property
+    def debug(self):
+        return self._debug
+
+    @debug.setter
+    def debug(self, debug: bool):
+        self._debug = debug
+
     def joint_control(self, goal: float, step: int, apply_force: bool):
 
         self.current_simulation_step = step
@@ -44,6 +54,13 @@ class Joint:
             direction = 0
         else:
             direction: float = (goal - self.state_at_start_of_movement)/abs(goal - self.state_at_start_of_movement)
+
+        if self._debug:
+            print("Who am I?:", self.jointIndex)
+            print("My state:", self.joint_state)
+            print("goal:", goal)
+            print("state:", state)
+            print("direction:", direction)
 
         # Positioning Stop
         if direction > 0:
@@ -81,8 +98,9 @@ class Joint:
                     self.state_at_start_of_movement = self._joint_state()
                     self._stop_joint()
 
-
     def _stop_joint(self):
+
+
         p.setJointMotorControl2(bodyUniqueId=self.bodyUniqueId,
                                 jointIndex=self.jointIndex,
                                 controlMode=p.VELOCITY_CONTROL,
@@ -90,8 +108,11 @@ class Joint:
                                 force=self.force)
 
         self.joint_state: JointState = JointState.STOPPED
+        self.current_counter_for_timeout = 0
 
     def _move_joint(self, velocity):
+
+        if self._debug: print("move joint is called!")
 
         p.setJointMotorControl2(bodyUniqueId=self.bodyUniqueId,
                                 jointIndex=self.jointIndex,
@@ -127,14 +148,46 @@ class Movements(Enum):
     GO_TO_GRASP_POSITION = 1
     PERFORM_GRASP_PART_1 = 2
     PERFORM_GRASP_PART_2 = 3
-    GO_TO_DROP_POSITION = 4
-    DROP = 5
-    FINISH = 6
+    PERFORM_GRASP_PART_3 = 4
+    GO_TO_DROP_POSITION_1 = 5
+    GO_TO_DROP_POSITION_2 = 6
+    DROP = 7
+    FINISH = 8
 
 
 class CartesianControl:
+    _start_xyz: xyz_list
+    _drop_xyz: xyz_list
+    _grasp_position_xy: List[float]
+    _grasp_position_z: List[float]
+    _gripper_closed: List[float]
+    _gripper_open: List[float]
+    _gripper_angle: List[radians]
+    _debug: bool
+
+    idx_robot_prismatic_joints: List[int]
+    idx_robot_revolution_joints: List[int]
+    idx_gripper_joints: List[int]
+    is_in_movement: bool
+    current_movement: Movements
+    next_movement: Movements
+    has_performed_grasp_pipeline: bool
+    current_step: int = 0
+    joints: List[Joint]
+
     def __init__(self, bodyUniqueId: int):
 
+        # private
+        self._start_xyz: xyz_list = [0, 0, 3]
+        self._drop_xyz: xyz_list = [0, 0, 3]
+        self._grasp_position_xy: List[float] = [1.7, -0.1]
+        self._grasp_position_z: List[float] = [0.4]
+        self._gripper_closed: List[float] = [-0.8, 0.8]
+        self._gripper_open: List[float] = [0.0, 0.0]
+        self._gripper_angle: List[radians] = [3.1415/2]
+        self._debug: bool = False
+
+        # public
         self.idx_robot_prismatic_joints: List[int] = [2, 3, 4]
         self.idx_robot_revolution_joints: List[int] = [5]
         self.idx_gripper_joints: List[int] = [6, 7]
@@ -181,15 +234,39 @@ class CartesianControl:
                                     Joint(bodyUniqueId=bodyUniqueId,
                                           jointIndex=6,
                                           targetVelocity=0.5,
-                                          force=100,
+                                          force=200,
                                           joint_type="prismatic"),
                                     # 7 - hand_gripper_left_finger_joint
                                     Joint(bodyUniqueId=bodyUniqueId,
                                           jointIndex=7,
                                           targetVelocity=0.5,
-                                          force=100,
+                                          force=200,
                                           joint_type="prismatic")
             ]
+
+    @property
+    def start_xyz(self):
+        return self._start_xyz
+
+    @start_xyz.setter
+    def start_xyz(self, xyz: xyz_list):
+        self._start_xyz = xyz
+
+    @property
+    def drop_xyz(self):
+        return self._drop_xyz
+
+    @drop_xyz.setter
+    def drop_xyz(self, xyz: xyz_list):
+        self._drop_xyz = xyz
+
+    @property
+    def grasp_xy(self):
+        return self._grasp_position_xy
+
+    @grasp_xy.setter
+    def grasp_xy(self, xy: List[float]):
+        self._grasp_position_xy = xy
 
     def reset_pipeline(self):
         self.has_performed_grasp_pipeline = False
@@ -233,18 +310,36 @@ class CartesianControl:
 
             self.is_in_movement = True
             self.current_movement = Movements.PERFORM_GRASP_PART_2
-            self.next_movement = Movements.GO_TO_DROP_POSITION
+            self.next_movement = Movements.PERFORM_GRASP_PART_3
             self._perform_grasp_part_2()
             print("PERFORM_GRASP_PART_2")
 
-        elif (self.next_movement == Movements.GO_TO_DROP_POSITION and
+        elif (self.next_movement == Movements.PERFORM_GRASP_PART_3 and
               self.is_in_movement is False):
 
             self.is_in_movement = True
-            self.current_movement = Movements.GO_TO_DROP_POSITION
+            self.current_movement = Movements.PERFORM_GRASP_PART_3
+            self.next_movement = Movements.GO_TO_DROP_POSITION_1
+            self._perform_grasp_part_3()
+            print("PERFORM_GRASP_PART_3")
+
+        elif (self.next_movement == Movements.GO_TO_DROP_POSITION_1 and
+              self.is_in_movement is False):
+
+            self.is_in_movement = True
+            self.current_movement = Movements.GO_TO_DROP_POSITION_1
+            self.next_movement = Movements.GO_TO_DROP_POSITION_2
+            self._drop_position_1()
+            print("GO_TO_DROP_POSITION_1")
+
+        elif (self.next_movement == Movements.GO_TO_DROP_POSITION_2 and
+              self.is_in_movement is False):
+
+            self.is_in_movement = True
+            self.current_movement = Movements.GO_TO_DROP_POSITION_2
             self.next_movement = Movements.DROP
-            self._drop_position()
-            print("GO_TO_DROP_POSITION")
+            self._drop_position_2()
+            print("GO_TO_DROP_POSITION_2")
 
         elif (self.next_movement == Movements.DROP and
               self.is_in_movement is False):
@@ -253,7 +348,7 @@ class CartesianControl:
             self.current_movement = Movements.DROP
             self.next_movement = Movements.FINISH
             self._drop()
-            print("_drop")
+            print("DROP")
 
         elif (self.next_movement == Movements.FINISH and
               self.is_in_movement is False):
@@ -263,7 +358,6 @@ class CartesianControl:
             self.next_movement = Movements.FINISH
             self.has_performed_grasp_pipeline = True
             print("has_performed_grasp_pipeline")
-
 
         if self.is_in_movement is True:
 
@@ -275,8 +369,12 @@ class CartesianControl:
                 self._perform_grasp_part_1()
             elif self.current_movement == Movements.PERFORM_GRASP_PART_2:
                 self._perform_grasp_part_2()
-            elif self.current_movement == Movements.GO_TO_DROP_POSITION:
-                self._drop_position()
+            elif self.current_movement == Movements.PERFORM_GRASP_PART_3:
+                self._perform_grasp_part_3()
+            elif self.current_movement == Movements.GO_TO_DROP_POSITION_1:
+                self._drop_position_1()
+            elif self.current_movement == Movements.GO_TO_DROP_POSITION_2:
+                self._drop_position_2()
             elif self.current_movement == Movements.DROP:
                 self._drop()
 
@@ -285,45 +383,40 @@ class CartesianControl:
                 if joint.joint_state == JointState.MOVING:
                     are_all_joints_stopped = False
 
-            if are_all_joints_stopped is True:
+            if are_all_joints_stopped:
                 self.is_in_movement = False
 
-
-
     def _initial_position(self):
-        global start_xyz_position
-
-        self.joints[2].joint_control(3.0, self.current_step, False)  # z
-        self.joints[3].joint_control(0.0, self.current_step, False)  # x
-        self.joints[4].joint_control(0.0, self.current_step, False)  # y
-
-        # self.joints[2].joint_control(start_xyz_position[0], self.current_step, False)  # z
-        # self.joints[3].joint_control(start_xyz_position[1], self.current_step, False)  # x
-        # self.joints[4].joint_control(start_xyz_position[2], self.current_step, False)  # y
-
+        self.joints[2].joint_control(self._start_xyz[2], self.current_step, False)  # z
+        self.joints[3].joint_control(self._start_xyz[0], self.current_step, False)  # x
+        self.joints[4].joint_control(self._start_xyz[1], self.current_step, False)  # y
 
     def _go_to_grasp_position(self):
-
-        self.joints[3].joint_control(1.7, self.current_step, False)   # x
-        self.joints[4].joint_control(-0.1, self.current_step, False)  # y
-
+        self.joints[3].joint_control(self._grasp_position_xy[0], self.current_step, False)   # x
+        self.joints[4].joint_control(self._grasp_position_xy[1], self.current_step, False)  # y
 
     def _perform_grasp_part_1(self):
-
-        self.joints[2].joint_control(0.4, self.current_step, False)  # z
+        self.joints[5].joint_control(self._gripper_angle[0], self.current_step, False)  # revolution joint
 
     def _perform_grasp_part_2(self):
+        self.joints[2].joint_control(self._grasp_position_z[0], self.current_step, False)  # z
 
-        self.joints[6].joint_control(-0.8, self.current_step, True)  # right
-        self.joints[7].joint_control(0.8, self.current_step, True)   # left
+    def _perform_grasp_part_3(self):
 
-    def _drop_position(self):
+        #self.joints[6].debug = True
 
-        self.joints[2].joint_control(3.0, self.current_step, False)  # z
-        self.joints[3].joint_control(0.0, self.current_step, False)  # x
-        self.joints[4].joint_control(0.0, self.current_step, False)  # y
+        self.joints[6].joint_control(self._gripper_closed[0], self.current_step, True)  # right
+        self.joints[7].joint_control(self._gripper_closed[1], self.current_step, True)   # left
+
+    def _drop_position_1(self):
+        self.joints[2].debug = True
+
+        self.joints[2].joint_control(self._drop_xyz[2], self.current_step, False)  # z
+
+    def _drop_position_2(self):
+        self.joints[3].joint_control(self._drop_xyz[0], self.current_step, False)  # x
+        self.joints[4].joint_control(self._drop_xyz[1], self.current_step, False)  # y
 
     def _drop(self):
-
-        self.joints[6].joint_control(0.0, self.current_step, False)  # right
-        self.joints[7].joint_control(0.0, self.current_step, False)  # left
+        self.joints[6].joint_control(self._gripper_open[0], self.current_step, False)  # right
+        self.joints[7].joint_control(self._gripper_open[1], self.current_step, False)  # left

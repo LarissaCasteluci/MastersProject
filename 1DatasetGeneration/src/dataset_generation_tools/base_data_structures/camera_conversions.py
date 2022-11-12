@@ -11,4 +11,4 @@ def camera2world_coordinates(image_size: Tuple[int, int],
 
     return BasicGraspInWorldCoordinates(x_position,
                                         y_position,
-                                        BasicGrasp.theta)
+                                        grasp.theta)

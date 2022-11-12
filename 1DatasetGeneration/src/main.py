@@ -22,17 +22,16 @@ if __name__ == "__main__":
 
     frame_end: int = 20
     image_idx: int = frame_end - 1
-    resolution: Tuple[int, int]  = (256, 256)
+    resolution: Tuple[int, int] = (300, 300)
 
     # Load Auxiliary Classes
     GraspProposal = ProposalGenerator(TypesGenerator.RANDOM)
-    Exporter = JacquardDataExporter(str(src_folder.parent / "outputs" / "jacquard_output1"))
+    #Exporter = JacquardDataExporter(str(src_folder.parent / "outputs" / "jacquard_output1"))
     DatasetGen = ArtificialDatasetGeneration('tmp', frame_end=frame_end)
     DatasetGen.config_scene()
 
     for i in range(1):  # Number of objects of be generated
-        x: int = random.randint(0, n_files - 1)
-        urdf_path: str = urdf_files[x]
+        urdf_path: str = urdf_files[i]
         obj_name: str = Path(urdf_path).stem
 
         # 2. Loading the new objects in the assets folder

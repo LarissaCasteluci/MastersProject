@@ -32,7 +32,7 @@ class ProposalGenerator:
         for n in range(self.max_proposals):
             grasp = BasicGrasp(self.rng.random()*size_image[0],
                                self.rng.random()*size_image[1],
-                               self.rng.random()*2*math.pi)
+                               self.rng.random()*math.pi)
 
             grasps.append(grasp)
 

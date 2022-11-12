@@ -56,11 +56,9 @@ class Joint:
             direction: float = (goal - self.state_at_start_of_movement)/abs(goal - self.state_at_start_of_movement)
 
         if self._debug:
-            print("Who am I?:", self.jointIndex)
             print("My state:", self.joint_state)
             print("goal:", goal)
             print("state:", state)
-            print("direction:", direction)
 
         # Positioning Stop
         if direction > 0:
@@ -151,8 +149,9 @@ class Movements(Enum):
     PERFORM_GRASP_PART_3 = 4
     GO_TO_DROP_POSITION_1 = 5
     GO_TO_DROP_POSITION_2 = 6
-    DROP = 7
-    FINISH = 8
+    GO_TO_DROP_POSITION_3 = 7
+    DROP = 9
+    FINISH = 10
 
 
 class CartesianControl:
@@ -164,6 +163,7 @@ class CartesianControl:
     _gripper_open: List[float]
     _gripper_angle: List[radians]
     _debug: bool
+    _step_start_wait: int
 
     idx_robot_prismatic_joints: List[int]
     idx_robot_revolution_joints: List[int]
@@ -179,13 +179,14 @@ class CartesianControl:
 
         # private
         self._start_xyz: xyz_list = [0, 0, 3]
-        self._drop_xyz: xyz_list = [0, 0, 3]
+        self._drop_xyz: xyz_list = [0, 2, 3]
         self._grasp_position_xy: List[float] = [1.7, -0.1]
         self._grasp_position_z: List[float] = [0.4]
         self._gripper_closed: List[float] = [-0.8, 0.8]
         self._gripper_open: List[float] = [0.0, 0.0]
         self._gripper_angle: List[radians] = [3.1415/2]
         self._debug: bool = False
+        self. _step_start_wait: int = 0
 
         # public
         self.idx_robot_prismatic_joints: List[int] = [2, 3, 4]
@@ -262,11 +263,20 @@ class CartesianControl:
 
     @property
     def grasp_xy(self):
-        return self._grasp_position_xy
+        return [self._grasp_position_xy[0], self._grasp_position_xy[1] + 2]
 
     @grasp_xy.setter
     def grasp_xy(self, xy: List[float]):
-        self._grasp_position_xy = xy
+        self._grasp_position_xy[0] = xy[0]
+        self._grasp_position_xy[1] = xy[1] - 2
+
+    @property
+    def gripper_angle(self):
+        return self._gripper_angle
+
+    @gripper_angle.setter
+    def gripper_angle(self, angle: float):
+        self._gripper_angle = [angle]
 
     def reset_pipeline(self):
         self.has_performed_grasp_pipeline = False
@@ -337,9 +347,18 @@ class CartesianControl:
 
             self.is_in_movement = True
             self.current_movement = Movements.GO_TO_DROP_POSITION_2
-            self.next_movement = Movements.DROP
+            self.next_movement = Movements.GO_TO_DROP_POSITION_3
             self._drop_position_2()
             print("GO_TO_DROP_POSITION_2")
+
+        elif (self.next_movement == Movements.GO_TO_DROP_POSITION_3 and
+              self.is_in_movement is False):
+
+            self.is_in_movement = True
+            self.current_movement = Movements.GO_TO_DROP_POSITION_3
+            self.next_movement = Movements.DROP
+            self._drop_position_3()
+            print("GO_TO_DROP_POSITION_3")
 
         elif (self.next_movement == Movements.DROP and
               self.is_in_movement is False):
@@ -375,6 +394,8 @@ class CartesianControl:
                 self._drop_position_1()
             elif self.current_movement == Movements.GO_TO_DROP_POSITION_2:
                 self._drop_position_2()
+            elif self.current_movement == Movements.GO_TO_DROP_POSITION_3:
+                self._drop_position_3()
             elif self.current_movement == Movements.DROP:
                 self._drop()
 
@@ -402,20 +423,18 @@ class CartesianControl:
         self.joints[2].joint_control(self._grasp_position_z[0], self.current_step, False)  # z
 
     def _perform_grasp_part_3(self):
-
-        #self.joints[6].debug = True
-
         self.joints[6].joint_control(self._gripper_closed[0], self.current_step, True)  # right
         self.joints[7].joint_control(self._gripper_closed[1], self.current_step, True)   # left
 
     def _drop_position_1(self):
-        self.joints[2].debug = True
-
         self.joints[2].joint_control(self._drop_xyz[2], self.current_step, False)  # z
 
     def _drop_position_2(self):
         self.joints[3].joint_control(self._drop_xyz[0], self.current_step, False)  # x
         self.joints[4].joint_control(self._drop_xyz[1], self.current_step, False)  # y
+
+    def _drop_position_3(self):
+        self.joints[5].joint_control(0, self.current_step, False)  # revolution joint
 
     def _drop(self):
         self.joints[6].joint_control(self._gripper_open[0], self.current_step, False)  # right

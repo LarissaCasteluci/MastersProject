@@ -11,6 +11,7 @@ from Arguments import TestTypes, Arguments  # Test Configurations
 
 OUTPUT_SIZE = 300
 
+
 def format_depth_data(depth):
     if type(depth) == str:
         depth_img = DepthImage.from_tiff(depth)
@@ -80,7 +81,6 @@ def get_camera_data():  # returns Images
 def run_inference(args):  # returns x, y, alpha in image coordinates
     grasp = call_inference(args)
     return grasp
-
 
 
 def calculate_perspective_camera():  # return x, y, alpha in world coordinates

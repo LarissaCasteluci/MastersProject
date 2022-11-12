@@ -42,8 +42,6 @@ class RealSenseCamera:
         profile = self.pipeline.start(self.config)
         depth_sensor = profile.get_device().first_depth_sensor()
         depth_scale = depth_sensor.get_depth_scale()
-        clipping_distance_in_meters = 1  # 1 meter
-        clipping_distance = clipping_distance_in_meters / depth_scale
         align_to = rs.stream.color
         align = rs.align(align_to)
         for n in range(50):
@@ -53,6 +51,7 @@ class RealSenseCamera:
             color_frame = aligned_frames.get_color_frame()
             if not aligned_depth_frame or not color_frame:
                 continue
+
             depth_image = np.asanyarray(aligned_depth_frame.get_data())
             color_image = np.asanyarray(color_frame.get_data())
             continue
@@ -63,7 +62,7 @@ class RealSenseCamera:
     def post_process(self):
         pass
 
-    def calibratin(self):
+    def calibration(self):
         pass
 
 
@@ -175,6 +174,11 @@ def main_align2depth():
             aligned_depth_frame = aligned_frames.get_depth_frame()  # aligned_depth_frame is a 640x480 depth image
             color_frame = aligned_frames.get_color_frame()
 
+            profile = pipeline.get_active_profile()
+            color_profile = rs.video_stream_profile(profile.get_stream(rs.stream.color))
+            color_intrinsics = color_profile.get_intrinsics()
+            print(rs.rs2_deproject_pixel_to_point(color_intrinsics, [175, 355], 0.3))
+
             # Validate that both frames are valid
             if not aligned_depth_frame or not color_frame:
                 continue
@@ -214,6 +218,7 @@ def single_frame():
         cv2.imshow('RealSense_Depth', depth)
         cv2.imshow('RealSense_BGR', image)
         cv2.waitKey(1)
+
 
 
 if __name__ == "__main__":

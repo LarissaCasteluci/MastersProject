@@ -17,10 +17,11 @@ if __name__ == "__main__":
     # Load the list of available
     src_folder: Path = Path(os.path.abspath(__file__)).parent
     path_assets: Path = src_folder.parent / "assets" / "grasp_objects"
-    urdf_files: list[str] = glob.glob(str(path_assets) + '/*.urdf')
+    urdf_files: list[str] = glob.glob(str(path_assets) + '/*_docker.urdf')
     n_files: int = len(urdf_files)
 
-    frame_end: int = 20
+    frame_end: int = 3
+    #frame_end: int = 20
     image_idx: int = frame_end - 1
     resolution: Tuple[int, int] = (300, 300)
 
@@ -30,18 +31,20 @@ if __name__ == "__main__":
     DatasetGen = ArtificialDatasetGeneration('tmp', frame_end=frame_end)
     DatasetGen.config_scene()
 
-    for i in range(1):  # Number of objects of be generated
+    for i in [0]:  # Number of objects of be generated
         urdf_path: str = urdf_files[i]
-        obj_name: str = Path(urdf_path).stem
+        obj_name: str = Path(urdf_path).stem[:2]
+        print(obj_name)
 
         # 2. Loading the new objects in the assets folder
-        DatasetGen.add_objects(obj_name)
+        DatasetGen.add_grasping_object(obj_name)
+        DatasetGen.call_renderer()
 
-        for n in range(1):
+        #for n in range(1):
         #for n in range(Exporter.n_samples_per_object):
             # 3. Call Simulation -> Wait until objects are stabilized (ADD walls!)
             # 4. Call Rendering
-            DatasetGen.call_renderer()
+
 
             #Load
 

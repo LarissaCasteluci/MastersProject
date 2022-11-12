@@ -12,6 +12,7 @@ radians = float
 pixels = float
 degrees = float
 meters = float
+centimeters = float
 
 # @dataclass
 # class xyz:

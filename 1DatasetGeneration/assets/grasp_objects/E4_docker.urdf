@@ -1,0 +1,21 @@
+<robot name="E4">
+  <link name="base">
+    <inertial>
+      <origin xyz="-0.0 -0.0 -0.0" />
+      <mass value="1" />
+      <inertia ixx="0.011596575970588118" ixy="4.39905951818518e-06" ixz="-6.234686375848489e-06" iyy="0.007830556510601862" iyz="-1.1024043337091431e-05" izz="0.011606850839198995" />
+    </inertial>
+    <visual>
+      <origin xyz="-0.0 -0.0 -0.0" />
+      <geometry>
+        <mesh filename="1DatasetGeneration/assets/grasp_objects/E4_visual.obj" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0.0 0.0 0.0" />
+      <geometry>
+        <mesh filename="/1DatasetGeneration/assets/grasp_objects/E4_150_100000_true_flood_64_true.obj" />
+      </geometry>
+    </collision>
+  </link>
+</robot>

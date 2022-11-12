@@ -3,7 +3,7 @@
 import kubric as kb
 import numpy as np
 from kubric.renderer.blender import Blender as KubricRenderer
-from simulators.pybullet_simulator import PyBullet as KubricSimulator
+from dataset_generation_tools.simulators.pybullet_simulator import PyBullet as KubricSimulator
 from typing import List, Tuple
 import shutil
 import os
@@ -12,12 +12,15 @@ import os
 class ArtificialDatasetGeneration:
     """ Dataset for generating the artificial data"""
     scene: kb.Scene
+    renderer: KubricRenderer
+    simulator: KubricSimulator
     grasping_obj: kb.FileBasedObject
     rng: np.array
     velocity: np.array
     walls: List[kb.Cube]
-    renderer: KubricRenderer
-    simulator: KubricSimulator
+    grasping_object_pos: List[float]
+    grasping_object_quat: List[float]
+
 
     def __init__(self,
                  output_dir: str,
@@ -40,6 +43,9 @@ class ArtificialDatasetGeneration:
             shutil.rmtree(self.path_name)
 
         self.walls = []
+
+        self.grasping_object_pos = [0, 0, 1]
+        self.grasping_object_quat = [0, 0, 0, 0]
 
     def config_scene(self):
         self.scene += kb.Cube(name="floor", scale=(10, 10, 0.1),
@@ -78,15 +84,16 @@ class ArtificialDatasetGeneration:
         for wall in self.walls:
             self.scene.remove(wall)
 
-    def add_objects(self, asset_name: str):
-        #scale = 1
-        scale = 0.04
+    def add_grasping_object(self, asset_name: str):
+        scale = 5
         obj = kb.FileBasedObject(
           asset_id=asset_name,
           render_filename=f"/1DatasetGeneration/assets/grasp_objects/{asset_name}_visual.obj",
           bounds=((-1, -1, 0), (1, 1, 1)),
-          position=(0, 0, 1), # position=(0, 0, 0.2),
-          simulation_filename=f"/1DatasetGeneration/assets/grasp_objects/{asset_name}.urdf",
+          #position=tuple(self.grasping_object_pos),
+          position=(0, 0, 1),
+          #quaternion=self.grasping_object_quat,
+          simulation_filename=f"/1DatasetGeneration/assets/grasp_objects/{asset_name}_docker.urdf",
           scale=(scale, scale, scale),
           material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color()),
           velocity=self.velocity)
@@ -94,7 +101,10 @@ class ArtificialDatasetGeneration:
         self.scene += obj
         self.grasping_obj = obj
 
-    def remove_objects(self):
+        print("visual:", os.path.isfile(f"/1DatasetGeneration/assets/grasp_objects/{asset_name}_visual.obj"))
+        print("visual:", os.path.isfile(f"/1DatasetGeneration/assets/grasp_objects/{asset_name}.urdf"))
+
+    def remove_grasping_object(self):
         self.scene.remove(self.grasping_obj)
 
     def call_renderer(self):
@@ -110,7 +120,7 @@ class ArtificialDatasetGeneration:
 
         spawn_region = [[-2, -2, 5], [2, 2, 10]]
 
-        kb.move_until_no_overlap(self.grasping_obj, self.simulator, spawn_region=spawn_region)
+        #kb.move_until_no_overlap(self.grasping_obj, self.simulator, spawn_region=spawn_region)
         self.simulator.run()
 
         #self.renderer.save_state(self.path_name + "helloworld1.blend")

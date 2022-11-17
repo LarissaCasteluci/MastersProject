@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from basic_types import pixels, degrees, centimeters
+from .basic_types import pixels, degrees, centimeters
 
 
 class JawsSizes(Enum):

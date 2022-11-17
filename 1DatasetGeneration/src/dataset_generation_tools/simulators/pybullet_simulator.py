@@ -19,12 +19,16 @@ import pathlib
 import sys
 import tempfile
 from typing import Dict, List, Optional, Tuple, Union
+import time
 
 import tensorflow as tf
 from singledispatchmethod import singledispatchmethod
 
 from kubric import core
 from kubric.redirect_io import RedirectStream
+
+from ..robot_control.cartesian_robot_control import CartesianControl, Movements
+from ..base_data_structures.basic_types import *
 
 # --- hides the "pybullet build time: May 26 2021 18:52:36" message on import
 with RedirectStream(stream=sys.stderr):
@@ -130,9 +134,7 @@ class PyBullet(core.View):
     # fix the sticky walls issue;
     # see https://github.com/bulletphysics/bullet3/issues/3094
     if path.suffix == ".urdf":
-      obj_idx = pb.loadURDF(str(path), useFixedBase=obj.static,
-                            globalScaling=scale,
-                            useMaximalCoordinates=True)
+      obj_idx = pb.loadURDF(str(path), useFixedBase=obj.static, globalScaling=scale, useMaximalCoordinates=True)
     else:
       raise IOError(
           "Unsupported format '{path.suffix}' of file '{path}'")
@@ -199,7 +201,6 @@ class PyBullet(core.View):
 
     obj_idxs = [pb.getBodyUniqueId(i) for i in range(pb.getNumBodies())]
 
-    print("NAME MY OBJECTS",  obj_idxs)
 
     animation = {obj_id: {"position": [], "quaternion": [], "velocity": [], "angular_velocity": []}
                  for obj_id in obj_idxs}
@@ -257,6 +258,46 @@ class PyBullet(core.View):
         obj.keyframe_insert("angular_velocity", frame_id + frame_start)
 
     return animation, collisions
+
+
+  def run_grasp_simulation(self,
+                           obj_name: str,
+                           g: BasicGraspInWorldCoordinates,
+                           pos: List[float],
+                           quat: List[float]):
+
+    obj_path: str = "/1DatasetGeneration/assets/grasp_objects/"
+    gripper_path: str = "/1DatasetGeneration/assets/grippers_models/"
+    cubeStartOrientation: quaternion_tuple = pb.getQuaternionFromEuler([0, 0, 0])
+
+    cartesian: id = pb.loadURDF(gripper_path + "cartesian.urdf", [0, 0, 1], cubeStartOrientation)
+    robot: CartesianControl = CartesianControl(cartesian)
+    simulation_time: id = 60
+
+    for step in range(simulation_time * 240):
+        pb.stepSimulation()
+        time.sleep(1. / 240.)
+
+        if robot.is_in_movement == False and robot.current_movement == Movements.GO_TO_INITIAL_POSITION:
+            boxId: id = pb.loadURDF(obj_path + f"{obj_name}_docker.urdf",
+                                               #[g.x, g.y, 0.3],
+                                               pos,
+                                               #cubeStartOrientation,
+                                               quat)
+
+        if robot.is_in_movement == False and robot.current_movement == Movements.GO_TO_DROP_POSITION_2:
+            Pos, _ = pb.getBasePositionAndOrientation(boxId)
+            print(Pos)
+
+        robot.grasp_xy = [g.x, g.y]
+        robot.gripper_angle = g.theta
+        robot.perform_grasp_pipeline(step)
+        if robot.has_performed_grasp_pipeline:
+            break
+
+    robot.reset_pipeline()
+    pb.removeBody(boxId)
+    pb.removeBody(cartesian)
 
   def _obj_idx_to_asset(self, idx):
     assets = [asset for asset in self.scene.assets if asset.linked_objects.get(self) == idx]

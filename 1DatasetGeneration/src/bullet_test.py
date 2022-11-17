@@ -39,7 +39,7 @@ for grasp in grasps:
         time.sleep(1. / 240.)
 
         if robot.is_in_movement == False and robot.current_movement == Movements.GO_TO_INITIAL_POSITION:
-            boxId: id = p.loadURDF(obj_path + "A0.urdf", [g.x, g.y, 0.3], cubeStartOrientation)
+            boxId: id = p.loadURDF(obj_path + "A1.urdf", [5, 5, 0.3], cubeStartOrientation)
 
         if robot.is_in_movement == False and robot.current_movement == Movements.GO_TO_DROP_POSITION_2:
             Pos, _ = p.getBasePositionAndOrientation(boxId)

@@ -21,11 +21,13 @@ TODO
 ## Configure experiments with Kuka IIWA
 1. Deactivate conda
 2. Start running: "roscore"
-3. "cd MasterProject/catkin_ws"
+3. "cd MastersProject/catkin_ws"
 4. "catkin_make" -> build project
 5. "cd catkin_ws"; "source devel/setup.zsh" -> find references to project
 6. "rosrun kuka_kontrol server_V30032017.py3" 
 7. "rosrun kuka_kontrol demo5_ReadData.py3"
+
+SSH garra 172.31.1.171 porta 5500
 
 
 ## See robot configuration

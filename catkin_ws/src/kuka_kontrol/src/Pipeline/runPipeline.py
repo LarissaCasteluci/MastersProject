@@ -8,6 +8,15 @@ from utils.dataset_processing.image import Image, DepthImage
 from inference_ggcnn import call_inference
 import matplotlib.pyplot as plt
 from Arguments import TestTypes, Arguments  # Test Configurations
+import pyrealsense2 as rs
+from utils.dataset_processing.grasp import Grasp as GraspGGCNN2
+import signal
+from gripper_control import GripperControl
+
+
+def signal_handler(sig, frame):
+    sys.exit(0)
+
 
 OUTPUT_SIZE = 300
 
@@ -22,7 +31,7 @@ def format_depth_data(depth):
     depth_img.rotate(0)
     depth_img.normalise()
     depth_img.zoom(1.0)
-    depth_img.resize((OUTPUT_SIZE, OUTPUT_SIZE))
+    depth_img.resize((480, 640))
     return depth_img.img
 
 
@@ -35,7 +44,7 @@ def format_rgb_data(color):
         raise Exception("This type is not implemented")
     rgb_img.rotate(0)
     rgb_img.zoom(1.0)
-    rgb_img.resize((OUTPUT_SIZE, OUTPUT_SIZE))
+    rgb_img.resize((480, 640))
     rgb_img.normalise()
     rgb_img.img = rgb_img.img.transpose((2, 0, 1))
     return rgb_img.img
@@ -69,22 +78,22 @@ def read_jacquard_data():
     return depth, color
 
 
-def get_camera_data():  # returns Images
-    camera = RealSenseCamera()
+def get_camera_data(camera: RealSenseCamera):  # returns Images
     #depth, color = camera.get_single_frame()
-    depth, color = camera.align_depth2color()
+    depth, color, color_intrinsics = camera.align_depth2color()
     color = format_rgb_data(color)
     depth = format_depth_data(depth)
-    return depth, color
+    return depth, color, color_intrinsics
 
 
 def run_inference(args):  # returns x, y, alpha in image coordinates
-    grasp = call_inference(args)
-    return grasp
+    grasps = call_inference(args)
+    return grasps[0]
 
 
-def calculate_perspective_camera():  # return x, y, alpha in world coordinates
-    pass
+def calculate_perspective_camera(color_intrinsics, grasp: GraspGGCNN2):  # return x, y, alpha in world coordinates
+    return rs.rs2_deproject_pixel_to_point(color_intrinsics,
+                                           [grasp.center[1], grasp.center[0]], 0.3)
 
 
 def move_robot_XYZABC(position, mode):
@@ -115,23 +124,31 @@ def main():
     ### Set robot's configuration
     # Initial Position
     # Tool's size
-    tool_s = 110  # size in z-axis in mm
-    ip = f'-95 -500 {str(290 + tool_s)} - - -'
-    n_experiments = 1
+    tool_s: int = 110  # size in z-axis in mm
+    initial_point = [-75, 700, 430]
+    ip: str = f'{initial_point[0]} {initial_point[1]} {initial_point[2] - tool_s} 0 0 179'  # X Y Z A B C
+    n_experiments: int = 1
 
-    #set_robot_configurations()
-
+    set_robot_configurations()
 
     ### Set network's configuration
-    network_name = 'ggcnn2'
-    test_type = TestTypes.ONLY_DEPTH
-    args = Arguments(network_name, test_type)
+    network_name: str = 'ggcnn2'
+    test_type: TestTypes = TestTypes.RGB_AND_DEPTH
+    args: Arguments = Arguments(network_name, test_type)
+
+    # Initialize camera
+    camera: RealSenseCamera = RealSenseCamera()
+
+    # Connect to gripper
+    gripper: GripperControl = GripperControl("172.31.1.171", 5500)
+    gripper.connect()
+
 
     for i in range(n_experiments):
-        #move_robot_XYZABC(ip, "ptp")
-        move_robot_dummy()
+        move_robot_XYZABC(ip, "ptp")  # move_robot_dummy()
+        gripper.command_calibration()
 
-        args.depth, args.rgb = get_camera_data()  # Get camera Data ( Image )
+        args.depth, args.rgb, color_intrinsics = get_camera_data(camera)  # Get camera Data ( Image )
         if args.save:
             np.save("/home/larissa/MastersProject/2KukaExperiments/image_sample/rgb.npy", args.rgb)
             np.save("/home/larissa/MastersProject/2KukaExperiments/image_sample/depth.npy", args.depth)
@@ -139,13 +156,22 @@ def main():
         #args.depth, args.rgb = get_camera_data_dummy()
         #args.depth, args.rgb = read_jacquard_data()
 
-        grasps = run_inference(args)
+        grasp: GraspGGCNN2 = run_inference(args)
+        print("Grasp Proposal is image coordinates: ", grasp.center[1], grasp.center[0])
 
-        #calculate_perspective_camera()
-        calculate_perspective_camera_dummy()
+        grasp_w = calculate_perspective_camera(color_intrinsics, grasp) #calculate_perspective_camera_dummy()
+        print("Grasp Proposal in world coordinates: ", grasp_w)
 
+        gp1: str = f'{initial_point[0]} {initial_point[1]} {300 - tool_s} 0 0 179'  # X Y Z A B C
+        move_robot_XYZABC(gp1, "lin")
+        print("Finished Part 1")
+
+        gp: str = f'{initial_point[0] - grasp_w[0]*1000 + 40} {initial_point[1] + grasp_w[1]*1000 -110} {250 - tool_s} 0 0 179'  # X Y Z A B C
+        move_robot_XYZABC(gp, "lin")
+
+        print("Finished Part 2")
         # TODO: Calculate grasp point based on what is received from the network
-        gp = f'-95 -500 {str(0 + tool_s)} - - -'  # Grasp point --> this will be received from the network
+        #gp = f'-95 -500 {str(0 + tool_s)} - - -'  # Grasp point --> this will be received from the network
         #move_robot_XYZABC(gp, "lin")
         move_robot_dummy()
 
@@ -159,6 +185,8 @@ def main():
 
 
 if __name__ == "__main__":
+
+    signal.signal(signal.SIGINT, signal_handler)
 
     global kuka
     kuka = kuka_iiwa_ros_node()

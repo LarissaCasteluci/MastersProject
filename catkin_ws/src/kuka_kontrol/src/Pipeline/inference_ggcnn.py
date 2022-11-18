@@ -26,7 +26,8 @@ def call_inference(args):
     logging.info('Initializing ...')
     Dataset = get_dataset(args.dataset)
 
-    inference = Dataset(args.depth, args.rgb,
+    inference = Dataset(args.depth,
+                        args.rgb,
                         include_depth=args.use_depth,
                         include_rgb=args.use_rgb)
 

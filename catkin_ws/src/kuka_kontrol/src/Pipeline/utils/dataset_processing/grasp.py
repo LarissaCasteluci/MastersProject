@@ -353,7 +353,7 @@ class Grasp:
     """
     A Grasp represented by a center pixel, rotation angle and gripper width (length)
     """
-    def __init__(self, center, angle, length=60, width=30):
+    def __init__(self, center, angle, length=60, width=60):
         self.center = center
         self.angle = angle  # Positive angle means rotate anti-clockwise from horizontal.
         self.length = length

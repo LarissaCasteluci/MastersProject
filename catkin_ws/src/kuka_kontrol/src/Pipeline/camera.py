@@ -46,6 +46,11 @@ class RealSenseCamera:
         align = rs.align(align_to)
         for n in range(50):
             frames = self.pipeline.wait_for_frames()
+
+            profile = self.pipeline.get_active_profile()
+            color_profile = rs.video_stream_profile(profile.get_stream(rs.stream.color))
+            color_intrinsics = color_profile.get_intrinsics()
+
             aligned_frames = align.process(frames)
             aligned_depth_frame = aligned_frames.get_depth_frame()  # aligned_depth_frame is a 640x480 depth image
             color_frame = aligned_frames.get_color_frame()
@@ -57,7 +62,7 @@ class RealSenseCamera:
             continue
 
         self.pipeline.stop()
-        return depth_image, color_image
+        return depth_image, color_image, color_intrinsics
 
     def post_process(self):
         pass
@@ -174,10 +179,6 @@ def main_align2depth():
             aligned_depth_frame = aligned_frames.get_depth_frame()  # aligned_depth_frame is a 640x480 depth image
             color_frame = aligned_frames.get_color_frame()
 
-            profile = pipeline.get_active_profile()
-            color_profile = rs.video_stream_profile(profile.get_stream(rs.stream.color))
-            color_intrinsics = color_profile.get_intrinsics()
-            print(rs.rs2_deproject_pixel_to_point(color_intrinsics, [175, 355], 0.3))
 
             # Validate that both frames are valid
             if not aligned_depth_frame or not color_frame:

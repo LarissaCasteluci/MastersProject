@@ -12,6 +12,21 @@ import pyrealsense2 as rs
 from utils.dataset_processing.grasp import Grasp as GraspGGCNN2
 import signal
 from gripper_control import GripperControl
+import os
+from csv import writer
+
+
+class CSVWriter():
+    def __init__(self, path: str):
+        if not os.path.isfile(path):
+            open(path, 'a').close()  # Create output file if it doesn't exist
+
+        self.path = path
+
+    def append(self, data):
+        with open(self.path, 'a+', newline='') as f:
+            csv_writer = writer(f)
+            csv_writer.writerow(data)
 
 
 def signal_handler(sig, frame):
@@ -56,9 +71,19 @@ def set_robot_configurations():
     print('Started!')
 
     kuka.send_command('setTool tool1')
+    normal_movement_kuka()
 
-    # Define Slow velocities
+
+def normal_movement_kuka():
     acc, vel, jerk, carvel = 0.5, 0.1, 0.5, 50
+    kuka.send_command(f'setJointAcceleration {acc}')
+    kuka.send_command(f'setJointVelocity {vel}')
+    kuka.send_command(f'setJointJerk {jerk}')
+    kuka.send_command(f'setCartVelocity {carvel}')
+
+
+def slow_movement_kuka():
+    acc, vel, jerk, carvel = 0.2, 0.02, 0.5, 50
     kuka.send_command(f'setJointAcceleration {acc}')
     kuka.send_command(f'setJointVelocity {vel}')
     kuka.send_command(f'setJointJerk {jerk}')
@@ -121,6 +146,10 @@ def tcp_control():
 
 def main():
 
+    ## Set csv output
+    csv_writer = CSVWriter("/home/larissa/MastersProject/2KukaExperiments/results.csv")
+    object = "D0"
+
     ### Set robot's configuration
     # Initial Position
     # Tool's size
@@ -168,20 +197,32 @@ def main():
 
         gp: str = f'{initial_point[0] - grasp_w[0]*1000 + 40} {initial_point[1] + grasp_w[1]*1000 -110} {250 - tool_s} 0 0 179'  # X Y Z A B C
         move_robot_XYZABC(gp, "lin")
-
         print("Finished Part 2")
-        # TODO: Calculate grasp point based on what is received from the network
-        #gp = f'-95 -500 {str(0 + tool_s)} - - -'  # Grasp point --> this will be received from the network
-        #move_robot_XYZABC(gp, "lin")
-        move_robot_dummy()
 
-        tcp_control_dummy()
+        proceed = input("Proceed with grasping?")
+        if proceed != "y":
+            print("Do not proceed with grasping")
+            csv_writer.append([object, 'failed'])
+        else:
+            print("Proceed with grasping")
+            slow_movement_kuka()
+            gp: str = f'{initial_point[0] - grasp_w[0] * 1000 + 40} {initial_point[1] + grasp_w[1] * 1000 - 110} {190 - tool_s} 0 0 179'  # X Y Z A B C
+            move_robot_XYZABC(gp, "lin")
+            gripper.command_close()
 
-        dp = f'100 -500 {str(290 + tool_s)} - - -'  # Drop Point
-        #move_robot_XYZABC(dp, "ptp")
-        move_robot_dummy()
+            normal_movement_kuka()
+            dp: str = f'{initial_point[0] - grasp_w[0] * 1000 + 40} {initial_point[1] + grasp_w[1] * 1000 - 110} {300 - tool_s} 0 0 179'  # X Y Z A B C
+            move_robot_XYZABC(gp, "lin")
 
-        tcp_control_dummy()
+            sucess = input("Was grasp successfull?")
+            if sucess == "y":
+                csv_writer.append([object, 'sucess'])
+                gripper.command_open()
+            else:
+                csv_writer.append([object, 'failed'])
+                gripper.command_open()
+
+
 
 
 if __name__ == "__main__":
@@ -191,5 +232,6 @@ if __name__ == "__main__":
     global kuka
     kuka = kuka_iiwa_ros_node()
 
-    main()
+    for n in [0]:
+        main()
 

@@ -1,6 +1,7 @@
 import socket
 import time
 
+
 class GripperControl:
     host: str
     port: int
@@ -28,12 +29,12 @@ class GripperControl:
 
 
 if __name__ == "__main__":
-    control = GripperControl("172.31.1.171", 38866)
+    control = GripperControl("172.31.1.171", 5500)
     control.connect()
     control.command_calibration()
     control.listen()
-    #control.command_close()
-    #control.listen()
+    control.command_close()
+    control.listen()
     control.command_open()
     control.listen()
 

@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 from .grasp import GraspRectangles, detect_grasps
 
@@ -43,6 +44,7 @@ def plot_output(rgb_img, depth_img, grasp_q_img, grasp_angle_img, no_grasps=1, g
     ax.set_title('Angle')
     ax.axis('off')
     plt.colorbar(plot)
+    plt.savefig(f"/home/larissa/IMAGES_FOR_MASTER/generated_image_{str(time.time())}.jpg")
     plt.show()
 
 

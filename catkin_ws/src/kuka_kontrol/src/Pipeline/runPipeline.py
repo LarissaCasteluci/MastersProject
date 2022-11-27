@@ -14,6 +14,8 @@ import signal
 from gripper_control import GripperControl
 import os
 from csv import writer
+import math
+import time
 
 
 class CSVWriter():
@@ -147,15 +149,18 @@ def tcp_control():
 def main():
 
     ## Set csv output
-    csv_writer = CSVWriter("/home/larissa/MastersProject/2KukaExperiments/results.csv")
-    object = "D0"
+    csv_writer = CSVWriter("/home/larissa/MastersProject/2KukaExperiments/2022_11_26-first.csv")
+    object = "A1"
+    test = "right_side"
 
     ### Set robot's configuration
     # Initial Position
     # Tool's size
     tool_s: int = 110  # size in z-axis in mm
+    initial_angle = -90
+    other_angles = '0 179'
     initial_point = [-75, 700, 430]
-    ip: str = f'{initial_point[0]} {initial_point[1]} {initial_point[2] - tool_s} 0 0 179'  # X Y Z A B C
+    ip: str = f'{initial_point[0]} {initial_point[1]} {initial_point[2] - tool_s} {str(initial_angle)} {other_angles}'  # X Y Z A B C
     n_experiments: int = 1
 
     set_robot_configurations()
@@ -191,38 +196,48 @@ def main():
         grasp_w = calculate_perspective_camera(color_intrinsics, grasp) #calculate_perspective_camera_dummy()
         print("Grasp Proposal in world coordinates: ", grasp_w)
 
-        gp1: str = f'{initial_point[0]} {initial_point[1]} {300 - tool_s} 0 0 179'  # X Y Z A B C
+        grasp_a = grasp.angle * 180 / math.pi
+        if grasp_a > 0:
+            grasp_a = grasp_a - 180
+
+        gp1: str = f'{initial_point[0]} {initial_point[1]} {300 - tool_s} {str(initial_angle)} {other_angles}'  # X Y Z A B C
         move_robot_XYZABC(gp1, "lin")
         print("Finished Part 1")
 
-        gp: str = f'{initial_point[0] - grasp_w[0]*1000 + 40} {initial_point[1] + grasp_w[1]*1000 -110} {250 - tool_s} 0 0 179'  # X Y Z A B C
+        gp: str = f'{initial_point[0] - grasp_w[0]*1000 + 40} {initial_point[1] + grasp_w[1]*1000 -110} {250 - tool_s} ' +\
+                  f'{str(grasp_a)} {other_angles}'  # X Y Z A B C
         move_robot_XYZABC(gp, "lin")
-        print("Finished Part 2")
+        print("Finished Part 3")
+
+        gp: str = f'{initial_point[0] - grasp_w[0]*1000 + 40} {initial_point[1] + grasp_w[1]*1000 -110} {250 - tool_s} ' +\
+                  f'{str(grasp_a)} {other_angles}'  # X Y Z A B C
+        move_robot_XYZABC(gp, "lin")
+        print("Finished Part 3")
 
         proceed = input("Proceed with grasping?")
         if proceed != "y":
             print("Do not proceed with grasping")
-            csv_writer.append([object, 'failed'])
+            csv_writer.append([object, 'failed', test])
         else:
             print("Proceed with grasping")
             slow_movement_kuka()
-            gp: str = f'{initial_point[0] - grasp_w[0] * 1000 + 40} {initial_point[1] + grasp_w[1] * 1000 - 110} {190 - tool_s} 0 0 179'  # X Y Z A B C
+            gp: str = f'{initial_point[0] - grasp_w[0] * 1000 + 30} {initial_point[1] + grasp_w[1] * 1000 - 115} {190 - tool_s} ' +\
+                      f'{str(grasp_a)} {other_angles}'  # X Y Z A B C
             move_robot_XYZABC(gp, "lin")
             gripper.command_close()
 
             normal_movement_kuka()
-            dp: str = f'{initial_point[0] - grasp_w[0] * 1000 + 40} {initial_point[1] + grasp_w[1] * 1000 - 110} {300 - tool_s} 0 0 179'  # X Y Z A B C
-            move_robot_XYZABC(gp, "lin")
+            dp: str = f'{initial_point[0] - grasp_w[0] * 1000 + 30} {initial_point[1] + grasp_w[1] * 1000 - 115} {300 - tool_s} ' +\
+                      f' {str(grasp_a)} {other_angles}'  # X Y Z A B C
+            move_robot_XYZABC(dp, "lin")
 
             sucess = input("Was grasp successfull?")
             if sucess == "y":
-                csv_writer.append([object, 'sucess'])
+                csv_writer.append([object, 'sucess', test])
                 gripper.command_open()
             else:
-                csv_writer.append([object, 'failed'])
+                csv_writer.append([object, 'failed', test])
                 gripper.command_open()
-
-
 
 
 if __name__ == "__main__":
@@ -232,6 +247,6 @@ if __name__ == "__main__":
     global kuka
     kuka = kuka_iiwa_ros_node()
 
-    for n in [0]:
+    for n in range(2):
         main()
 

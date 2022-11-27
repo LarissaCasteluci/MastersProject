@@ -67,6 +67,7 @@ def call_inference(args):
                                ang_img,
                                no_grasps=args.n_grasps,
                                grasp_width_img=width_img)
+
         time.sleep(3)
 
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys
-import time
 from kuka_ros_node import *
 from camera import RealSenseCamera
 from dummys import *
@@ -77,7 +76,7 @@ def set_robot_configurations():
 
 
 def normal_movement_kuka():
-    acc, vel, jerk, carvel = 0.5, 0.1, 0.5, 50
+    acc, vel, jerk, carvel = 0.5, 0.15, 0.5, 50
     kuka.send_command(f'setJointAcceleration {acc}')
     kuka.send_command(f'setJointVelocity {vel}')
     kuka.send_command(f'setJointJerk {jerk}')
@@ -113,8 +112,9 @@ def get_camera_data(camera: RealSenseCamera):  # returns Images
     return depth, color, color_intrinsics
 
 
-def run_inference(args):  # returns x, y, alpha in image coordinates
-    grasps = call_inference(args)
+def run_inference(args, timestamp):
+    ''' returns x, y, alpha in image coordinates'''
+    grasps = call_inference(args, timestamp)
     return grasps[0]
 
 
@@ -149,9 +149,10 @@ def tcp_control():
 def main():
 
     ## Set csv output
-    csv_writer = CSVWriter("/home/larissa/MastersProject/2KukaExperiments/2022_11_26-first.csv")
-    object = "A1"
-    test = "right_side"
+    csv_writer = CSVWriter("/home/larissa/MastersProject/2KukaExperiments/2022_11_27-first.csv")
+    object = "E5"
+    test = "left_side"
+    t = str(time.time())
 
     ### Set robot's configuration
     # Initial Position
@@ -186,11 +187,11 @@ def main():
         if args.save:
             np.save("/home/larissa/MastersProject/2KukaExperiments/image_sample/rgb.npy", args.rgb)
             np.save("/home/larissa/MastersProject/2KukaExperiments/image_sample/depth.npy", args.depth)
-        show_images(args.rgb)
+        #show_images(args.rgb)
         #args.depth, args.rgb = get_camera_data_dummy()
         #args.depth, args.rgb = read_jacquard_data()
 
-        grasp: GraspGGCNN2 = run_inference(args)
+        grasp: GraspGGCNN2 = run_inference(args, t)
         print("Grasp Proposal is image coordinates: ", grasp.center[1], grasp.center[0])
 
         grasp_w = calculate_perspective_camera(color_intrinsics, grasp) #calculate_perspective_camera_dummy()
@@ -217,7 +218,7 @@ def main():
         proceed = input("Proceed with grasping?")
         if proceed != "y":
             print("Do not proceed with grasping")
-            csv_writer.append([object, 'failed', test])
+            csv_writer.append([object, 'failed', test, t])
         else:
             print("Proceed with grasping")
             slow_movement_kuka()
@@ -233,10 +234,10 @@ def main():
 
             sucess = input("Was grasp successfull?")
             if sucess == "y":
-                csv_writer.append([object, 'sucess', test])
+                csv_writer.append([object, 'sucess', test, t])
                 gripper.command_open()
             else:
-                csv_writer.append([object, 'failed', test])
+                csv_writer.append([object, 'failed', test, t])
                 gripper.command_open()
 
 
@@ -247,6 +248,6 @@ if __name__ == "__main__":
     global kuka
     kuka = kuka_iiwa_ros_node()
 
-    for n in range(2):
+    for n in range(1):
         main()
 

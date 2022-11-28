@@ -14,7 +14,7 @@ import sys
 logging.basicConfig(level=logging.INFO)
 
 
-def call_inference(args):
+def call_inference(args, timestamp):
 
     input_channels = 1*args.use_depth + 3*args.use_rgb
     net = GGCNN2(input_channels=input_channels)
@@ -65,6 +65,7 @@ def call_inference(args):
                                args.depth,
                                q_img,
                                ang_img,
+                               timestamp,
                                no_grasps=args.n_grasps,
                                grasp_width_img=width_img)
 

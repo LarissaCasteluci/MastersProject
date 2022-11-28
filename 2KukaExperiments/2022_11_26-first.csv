@@ -1,3 +1,4 @@
+# Gripper Max opening: 600 mm
 A1,failed
 A1,sucess
 A1,failed
@@ -5,3 +6,10 @@ A1,sucess,right_side
 A1,failed
 A1,failed
 A1,sucess,right_side
+A1,failed,left_side
+A1,failed,left_side
+A1,failed,left_side
+A1,failed,left_side
+A1,failed,left_side
+A1,failed,left_side
+A1,sucess,left_side

@@ -33,8 +33,8 @@ if __name__ == "__main__":
     control.connect()
     control.command_calibration()
     control.listen()
-    control.command_close()
-    control.listen()
+    #control.command_close()
+    #control.listen()
     control.command_open()
     control.listen()
 

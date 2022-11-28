@@ -1,0 +1,28 @@
+B1,failed,right_side  # Failed because ratio object/gripper is too big, and gripper is registering grasp center on border
+B1,sucess,right_side
+B1,failed,right_side # Failed because ratio object/gripper is too big, and gripper is registering grasp center on border
+B1,failed,right_side # Failed because ratio object/gripper is too big, and gripper is registering grasp center on border
+B1,failed,left_side # Failed because ratio object/gripper is too big, and gripper is registering grasp center on border
+B1,sucess,left_side
+B1,sucess,left_side
+B1,failed,left_side # Failed because ratio object/gripper is too big, and gripper is registering grasp center on border
+A5,sucess,right_side
+A5,sucess,right_side
+A5,failed,right_side # Failed because of depth camera registering object in other place
+A5,sucess,right_side
+A5,failed,right_side # Failed because of depth camera registering object in other place
+A5,failed,left_side,1669576442.4200933
+A5,failed,left_side,1669576507.0025206
+A5,failed,left_side,1669576567.9293694
+A5,failed,left_side,1669576636.7801476
+A5,failed,left_side,1669576761.8032212
+E5,sucess,right_side,1669576960.5330033
+E5,sucess,right_side,1669577027.8507354
+E5,sucess,right_side,1669577548.2900767
+E5,sucess,right_side,1669577785.3631046
+E5,failed,right_side,1669577856.7417827
+E5,sucess,left_side,1669577933.877544
+E5,failed,left_side,1669578045.5111501
+E5,failed,left_side,1669578129.3540976 # Failed because of depth camera registering object in other place
+E5,failed,left_side,1669578284.0918434
+E5,failed,left_side,1669578354.3920963

@@ -3,29 +3,45 @@ import glob
 from pathlib import Path
 from typing import Tuple, List
 import os
+import time
 
 if __name__ == "__main__":
     # Load the list of available
     src_folder: Path = Path(os.path.abspath(__file__)).parent
     path_assets: Path = src_folder.parent / "assets" / "grasp_objects"
-    urdf_files: list[str] = glob.glob(str(path_assets) + '/*_docker.urdf')
+    urdf_files: List[str] = glob.glob(str(path_assets) + '/*_docker.urdf')
     urdf_files.sort()
     n_files: int = len(urdf_files)
 
-    for i in range(len(urdf_files)):
+    processes = []
+    for n, urdf_path in enumerate(urdf_files):
 
-        process = subprocess.Popen(f'cd /home/larissa/MastersProject && '\
-                                    'docker run --rm --interactive '\
-                                    '--user $(id -u):$(id -g) '\
-                                    '--volume "$(pwd)/original_repos/kubric:/kubric" '\
-                                    '--volume "$(pwd)/1DatasetGeneration:/1DatasetGeneration" '\
-                                    'kubruntu-modified ' \
-                                    '/usr/bin/python3 /1DatasetGeneration/src/pipeline.py ',
-                                   shell=True,
-                                   stdout=subprocess.PIPE)
+        obj_name: str = Path(urdf_path).stem[:2]
 
-        process.wait()
-        print(process.communicate())
-        print(process.returncode)
+        for repeat in range(5):
+            process = subprocess.Popen(f'cd /home/larissa/MastersProject && '\
+                                        'docker run --rm'\
+                                        '--user $(id -u):$(id -g) '\
+                                        '--volume "$(pwd)/original_repos/kubric:/kubric" '\
+                                        '--volume "$(pwd)/1DatasetGeneration:/1DatasetGeneration" '\
+                                        'kubruntu-modified ' \
+                                        f'/usr/bin/python3 /1DatasetGeneration/src/pipeline.py -obj {obj_name} -repeat {repeat}',
+                                       shell=True,
+                                       stdout=subprocess.PIPE)
 
-        break
+            #process.wait()
+            #break
+            processes.append(process)
+
+        #break
+
+        if (n + 1) % 3 == 0:
+            for p in processes:
+                p.wait()
+
+            processes = []
+
+
+    for p in processes:
+        p.wait()
+

@@ -88,10 +88,10 @@ class ArtificialDatasetGeneration:
         self.scene += self.camera_1
 
 
-        self.scene += kb.Cube(name="1", scale=(0.1, 0.1, 0.1), position=(0, 0, 1.5), static=True)
-        self.scene += kb.Cube(name="2", scale=(0.1, 0.1, 0.1), position=(4, 0, 1.5), static=True)
-        self.scene += kb.Cube(name="3", scale=(0.1, 0.1, 0.1), position=(0, 4, 1.5), static=True)
-        self.scene += kb.Cube(name="4", scale=(0.1, 0.1, 0.1), position=(4, 4, 1.5), static=True)
+        #self.scene += kb.Cube(name="1", scale=(0.1, 0.1, 0.1), position=(0, 0, 1.5), static=True)
+        #self.scene += kb.Cube(name="2", scale=(0.1, 0.1, 0.1), position=(4, 0, 1.5), static=True)
+        #self.scene += kb.Cube(name="3", scale=(0.1, 0.1, 0.1), position=(0, 4, 1.5), static=True)
+        #self.scene += kb.Cube(name="4", scale=(0.1, 0.1, 0.1), position=(4, 4, 1.5), static=True)
 
 
         self.walls.append(kb.Cube(name="wall1", scale=(0.05, 2, 1),
@@ -127,7 +127,7 @@ class ArtificialDatasetGeneration:
           quaternion=self.grasping_object_quat,
           simulation_filename=f"/1DatasetGeneration/assets/grasp_objects/{asset_name}_docker.urdf",
           scale=(scale, scale, scale),
-          material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color(), specular=0),
+          material=kb.PrincipledBSDFMaterial(color=kb.random_hue_color()),
           velocity=self.velocity)
 
         self.scene += obj
@@ -145,7 +145,7 @@ class ArtificialDatasetGeneration:
 
         kb.move_until_no_overlap(self.grasping_obj, self.simulator, spawn_region=spawn_region)
         self.simulator.run()
-        #self.remove_walls()
+        self.remove_walls()
 
     def call_renderer(self, camera):
 
@@ -165,8 +165,9 @@ class ArtificialDatasetGeneration:
                                   obj_name: str,
                                   grasp_in_world_coordinates: BasicGraspInWorldCoordinates):
 
-        self.simulator.run_grasp_simulation(obj_name,
-                                            grasp_in_world_coordinates,
-                                            self.grasping_object_pos,
-                                            self.grasping_object_quat)
+        is_grasp_sucessfull = self.simulator.run_grasp_simulation(obj_name,
+                                                                  grasp_in_world_coordinates,
+                                                                  self.grasping_object_pos,
+                                                                  self.grasping_object_quat)
 
+        return is_grasp_sucessfull

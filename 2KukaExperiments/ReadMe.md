@@ -5,8 +5,10 @@ Jacquard:
 x;y;theta in degrees;opening;jaws size. 
 583.90408; 479.20119; -66.2885; 135.0; 26.1855
 y is toward the bottom of the image (and therefore the angle is horizontally mirrored). 
-When the position is the same on multiple consecutive rows, the first one corresponds to the grasp with the 
-default jaws size of 2 cm and the followings are just repetition of this grasp with different sizes.
+When the position is the same on multiple consecutive rows, 
+the first one corresponds to the grasp with the 
+default jaws size of 2 cm and the followings are just 
+repetition of this grasp with different sizes.
 
 Cornell:
 253 319.7
@@ -14,9 +16,15 @@ Cornell:
 - Segurança
 - Aumentar o box da mesa
 
+Train GG-CNNN Jacquard
+``` bash
+python3 train_ggcnn.py --network ggcnn2 --dataset jacquard --dataset-path /home/larissa/DATASETS/Jacquard \
+--use-depth 1 --use_rgb 1  --epochs 100 --outdir training_network/models \
+--logdir training_network/log \
+--description default_jacquard
+``` 
 
-TODO
-- Adicionar kill applicação iiwa
+
 
 ## Configure experiments with Kuka IIWA
 1. Deactivate conda

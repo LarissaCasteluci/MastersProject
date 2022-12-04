@@ -5,6 +5,7 @@ import glob
 from pathlib import Path
 from typing import Tuple, List
 import os
+import argparse
 
 from stereo_matching import StereoMatching
 from artificial_dataset_generation import ArtificialDatasetGeneration
@@ -13,24 +14,28 @@ from dataset_generation_tools.grasp_proposal_generator.proposal_generator import
 from dataset_generation_tools.base_data_structures.camera_conversions import camera2world_coordinates
 
 
-def pipeline(urdf_path: str, obj_name: str):
+def pipeline(obj_name: str, repeat: int):
     print(obj_name)
+    repeat: str = str(repeat)
 
     frame_end: int = 5
     #frame_end: int = 20
     image_idx: int = frame_end - 1
     resolution: Tuple[int, int] = (300, 300)
 
-    path = f"/1DatasetGeneration/outputs/tmp/{obj_name}"
+    path = f"/1DatasetGeneration/outputs/tmp/{obj_name}_{str(repeat)}"
     DatasetGen = ArtificialDatasetGeneration(path)
     DatasetGen.configure_new_scene(resolution, frame_end=frame_end)
     DatasetGen.config_scene()
 
     # Load Auxiliary Classes
-    GraspProposal = ProposalGenerator(TypesGenerator.RANDOM, max_proposals=2)
+    GraspProposal = ProposalGenerator(TypesGenerator.RANDOM, max_proposals=100)
     grasps = GraspProposal.generate_proposals(resolution)
 
-    # Exporter = JacquardDataExporter(str(src_folder.parent / "outputs" / "jacquard_output1"))
+    out_path = str(src_folder.parent / "outputs" / "jacquard_format_output" / f"{obj_name}")
+    Path(out_path).mkdir(parents=True, exist_ok=True)
+
+    Exporter = JacquardDataExporter(out_path, obj_name, repeat)
 
     # 2. Loading the new objects from the assets folder
     DatasetGen.calculate_new_pos_and_quat()
@@ -46,8 +51,11 @@ def pipeline(urdf_path: str, obj_name: str):
     DatasetGen.call_renderer("/camera2")
 
     # Choose image for stereo matching
-    # stereo_matching = StereoMatching(path + "/camera1/rgba_00005.png",
-    #                                 path + "/camera2/rgba_00005.png")
+    stereo_matching = StereoMatching(path + "/camera1/rgba_00004.png",
+                                     path + "/camera2/rgba_00004.png")
+
+    stereo_matching.generate_stereo_image(str(src_folder.parent / "outputs" / "jacquard_format_output" / f"{obj_name}" / f"{repeat}_{obj_name}_stereo_depth.tiff"))
+    Exporter.save_images()
 
     DatasetGen.save_obj_pos_and_quat()
     DatasetGen.remove_grasping_object()
@@ -67,9 +75,11 @@ def pipeline(urdf_path: str, obj_name: str):
 
         print("grasp:", grasp_in_world_coordinates)
 
-        DatasetGen.grasp_proposal_simulation(obj_name, grasp_in_world_coordinates)
+        is_grasp_sucessfull = DatasetGen.grasp_proposal_simulation(obj_name, grasp_in_world_coordinates)
 
-    break
+        if is_grasp_sucessfull:
+            Exporter.save_grasps([grasp.y, grasp.x, grasp.theta, 2000.0, 1000.0])
+
     # Use the Exporter to save the data to the correct folder
 
 
@@ -83,8 +93,17 @@ if __name__ == "__main__":
     urdf_files.sort()
     n_files: int = len(urdf_files)
 
-    urdf_path: str = urdf_files[i]
-    obj_name: str = Path(urdf_path).stem[:2]
+    parser = argparse.ArgumentParser(
+                    prog='pipeline',
+                    description='starts the pipeline for generating artificial data',
+                    epilog='Text at the bottom of help')
+
+    parser.add_argument('-obj', action='store', type=str, required=True)
+    parser.add_argument('-repeat', action='store', type=str, required=True)
+    args = parser.parse_args()
+
+    pipeline(args.obj, args.repeat)
+
 
 
 

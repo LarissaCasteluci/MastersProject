@@ -266,6 +266,8 @@ class PyBullet(core.View):
                            pos: List[float],
                            quat: List[float]):
 
+    is_grasp_sucessfull: bool = False
+
     obj_path: str = "/1DatasetGeneration/assets/grasp_objects/"
     gripper_path: str = "/1DatasetGeneration/assets/grippers_models/"
     cubeStartOrientation: quaternion_tuple = pb.getQuaternionFromEuler([0, 0, 0])
@@ -289,6 +291,9 @@ class PyBullet(core.View):
             Pos, _ = pb.getBasePositionAndOrientation(boxId)
             print(Pos)
 
+            if Pos[2] > 2: # Grasp was sucessfull
+                is_grasp_sucessfull = True
+
         robot.grasp_xy = [g.x, g.y]
         robot.gripper_angle = g.theta
         robot.perform_grasp_pipeline(step)
@@ -298,6 +303,8 @@ class PyBullet(core.View):
     robot.reset_pipeline()
     pb.removeBody(boxId)
     pb.removeBody(cartesian)
+
+    return is_grasp_sucessfull
 
   def _obj_idx_to_asset(self, idx):
     assets = [asset for asset in self.scene.assets if asset.linked_objects.get(self) == idx]

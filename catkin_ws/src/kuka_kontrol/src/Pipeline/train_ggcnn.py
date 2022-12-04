@@ -105,7 +105,7 @@ def validate(net, device, val_data, batches_per_epoch):
 
                 s = evaluation.calculate_iou_match(q_out, ang_out,
                                                    val_data.dataset.get_gtbb(didx, rot, zoom_factor),
-                                                   no_grasps=1,/home/larissa/MastersProject/1DatasetGeneration/assets
+                                                   no_grasps=1,
                                                    grasp_width=w_out,
                                                    )
 

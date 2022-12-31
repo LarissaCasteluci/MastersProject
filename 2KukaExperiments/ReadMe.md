@@ -24,6 +24,13 @@ python3 train_ggcnn.py --network ggcnn2 --dataset jacquard --dataset-path /home/
 --description default_jacquard
 ``` 
 
+```` bash
+python3 train_ggcnn.py --network ggcnn2 --dataset jacquard --dataset-path /home/larissa/MastersProject/1DatasetGeneration/outputs/jacquard_format_output/ \
+--use-depth 1 --use_rgb 1  --epochs 1 --outdir training_network/models \
+--logdir training_network/log \
+--description test_jacquard_like2
+
+````
 
 
 ## Configure experiments with Kuka IIWA

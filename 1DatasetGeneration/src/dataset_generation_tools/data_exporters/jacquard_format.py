@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from csv import writer
 from typing import List
 import shutil
-
+from PIL import Image
 
 class CSVWriter:
     def __init__(self, path: str):
@@ -37,8 +37,13 @@ class JacquardDataExporter(BaseDataExporter):
         # Copy images to final dataset
 
         # RGB image
-        shutil.copy(f"/1DatasetGeneration/outputs/tmp/{self.obj_name}_{str(self.repeat)}/camera1/rgba_00004.png",
-                    self.save_path + f"/{self.repeat}_{self.obj_name}_RGB.png")
+        ## Necessary to convert RGBA image to RGB
+        im = Image.open(f"/1DatasetGeneration/outputs/tmp/{self.obj_name}_{str(self.repeat)}/camera1/rgba_00004.png")
+        imarray = np.array(im)
+        imarray = imarray[:, :, :-1]
+        im = Image.fromarray(imarray)
+        im.save(self.save_path + f"/{self.repeat}_{self.obj_name}_RGB.png")
+
         # Perfect Depth
         shutil.copy(f"/1DatasetGeneration/outputs/tmp/{self.obj_name}_{str(self.repeat)}/camera1/depth_00004.tiff",
                     self.save_path + f"/{self.repeat}_{self.obj_name}_perfect_depth.tiff")

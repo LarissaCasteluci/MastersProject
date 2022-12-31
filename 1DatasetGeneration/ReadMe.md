@@ -8,6 +8,16 @@ The Dataset Generation was made by using the Kubric.
 Command for using kubric in this path, from the root of the project:
 
 ``` bash
+
+cd /home/larissa/MastersProject && \
+docker run --rm \
+--user $(id -u):$(id -g) \
+--volume "$(pwd)/original_repos/kubric:/kubric" \
+--volume "$(pwd)/1DatasetGeneration:/1DatasetGeneration" \
+kubruntu-modified  \
+/usr/bin/python3 /1DatasetGeneration/src/pipeline.py -obj A0 -repeat 0
+
+
 cd /home/larissa/MastersProject
 docker run --rm --interactive \
            --user $(id -u):$(id -g) \

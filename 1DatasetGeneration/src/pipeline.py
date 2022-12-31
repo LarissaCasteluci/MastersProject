@@ -2,16 +2,18 @@
 
 import logging
 import glob
+import pdb
 from pathlib import Path
 from typing import Tuple, List
 import os
 import argparse
+import sys
 
 from stereo_matching import StereoMatching
 from artificial_dataset_generation import ArtificialDatasetGeneration
 from dataset_generation_tools.data_exporters.jacquard_format import JacquardDataExporter
 from dataset_generation_tools.grasp_proposal_generator.proposal_generator import ProposalGenerator, TypesGenerator
-from dataset_generation_tools.base_data_structures.camera_conversions import camera2world_coordinates
+from dataset_generation_tools.base_data_structures.camera_conversions import camera2world_coordinates, world2camera_coordinates
 
 
 def pipeline(obj_name: str, repeat: int):
@@ -21,16 +23,12 @@ def pipeline(obj_name: str, repeat: int):
     frame_end: int = 5
     #frame_end: int = 20
     image_idx: int = frame_end - 1
-    resolution: Tuple[int, int] = (300, 300)
+    resolution: Tuple[int, int] = (1024, 1024)
 
     path = f"/1DatasetGeneration/outputs/tmp/{obj_name}_{str(repeat)}"
     DatasetGen = ArtificialDatasetGeneration(path)
     DatasetGen.configure_new_scene(resolution, frame_end=frame_end)
     DatasetGen.config_scene()
-
-    # Load Auxiliary Classes
-    GraspProposal = ProposalGenerator(TypesGenerator.RANDOM, max_proposals=100)
-    grasps = GraspProposal.generate_proposals(resolution)
 
     out_path = str(src_folder.parent / "outputs" / "jacquard_format_output" / f"{obj_name}")
     Path(out_path).mkdir(parents=True, exist_ok=True)
@@ -42,6 +40,21 @@ def pipeline(obj_name: str, repeat: int):
     DatasetGen.add_grasping_object(obj_name)
 
     DatasetGen.move_until_no_overlap()
+
+    # Load Auxiliary Classes
+    # GraspProposal = ProposalGenerator(TypesGenerator.RANDOM, max_proposals=100)
+    # grasps = GraspProposal.generate_proposals(resolution)
+
+    DatasetGen.save_obj_pos_and_quat()
+    GraspProposal = ProposalGenerator(TypesGenerator.GAUSSIAN,
+                                      max_proposals=5)
+    obj_pos_in_image = world2camera_coordinates(resolution, (4, 4), DatasetGen.grasping_object_pos)
+
+    grasps = GraspProposal.generate_proposals(resolution,
+                                              obj_pos_in_image
+                                              )
+
+
     # 3. Call renderer and generate data
     DatasetGen.call_renderer("/camera1")
 
@@ -77,10 +90,11 @@ def pipeline(obj_name: str, repeat: int):
 
         is_grasp_sucessfull = DatasetGen.grasp_proposal_simulation(obj_name, grasp_in_world_coordinates)
 
+        # Use the Exporter to save the data to the correct folder
         if is_grasp_sucessfull:
-            Exporter.save_grasps([grasp.y, grasp.x, grasp.theta, 2000.0, 1000.0])
+            Exporter.save_grasps([grasp.x, (1024 - grasp.y), grasp.theta, 400.0, 400.0])
 
-    # Use the Exporter to save the data to the correct folder
+
 
 
 if __name__ == "__main__":
@@ -103,6 +117,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     pipeline(args.obj, args.repeat)
+
+
+
 
 
 

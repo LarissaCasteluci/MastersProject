@@ -140,7 +140,8 @@ def train(epoch, net, device, train_data, optimizer, batches_per_epoch, vis=Fals
     batch_idx = 0
     # Use batches per epoch to make training on different sized datasets (cornell/jacquard) more equivalent.
     while batch_idx < batches_per_epoch:
-        for x, y, _, _, _ in train_data:
+        for data in train_data:
+            x, y, _, _, _ = data
             batch_idx += 1
             if batch_idx >= batches_per_epoch:
                 break
@@ -169,11 +170,20 @@ def train(epoch, net, device, train_data, optimizer, batches_per_epoch, vis=Fals
                 imgs = []
                 n_img = min(4, x.shape[0])
                 for idx in range(n_img):
-                    imgs.extend([x[idx,].numpy().squeeze()] + [yi[idx,].numpy().squeeze() for yi in y] + [
-                        x[idx,].numpy().squeeze()] + [pc[idx,].detach().cpu().numpy().squeeze() for pc in lossd['pred'].values()])
-                gridshow('Display', imgs,
-                         [(xc.min().item(), xc.max().item()), (0.0, 1.0), (0.0, 1.0), (-1.0, 1.0), (0.0, 1.0)] * 2 * n_img,
-                         [cv2.COLORMAP_BONE] * 10 * n_img, 10)
+                    imgs.extend(
+                        [x[idx,].numpy().squeeze()] + [yi[idx,].numpy().squeeze() for yi in y] +
+                        [x[idx,].numpy().squeeze()] + [pc[idx,].detach().cpu().numpy().squeeze() for pc in lossd['pred'].values()]
+                    )
+                gridshow('Display',
+                         imgs,
+                         [(xc.min().item(),
+                           xc.max().item()),
+                          (0.0, 1.0),
+                          (0.0, 1.0),
+                          (-1.0, 1.0),
+                          (0.0, 1.0)] * 2 * n_img,
+                         [cv2.COLORMAP_BONE] * 10 * n_img,
+                         10)
                 cv2.waitKey(2)
 
     results['loss'] /= batch_idx
@@ -284,6 +294,35 @@ def run():
             torch.save(net.state_dict(), os.path.join(save_folder, 'epoch_%02d_iou_%0.2f_statedict.pt' % (epoch, iou)))
             best_iou = iou
 
+
+sys.argv.extend(['--network', "ggcnn2"])
+sys.argv.extend(['--dataset', "jacquard"])
+sys.argv.extend(['--dataset-path', "/home/larissa/MastersProject/1DatasetGeneration/outputs/jacquard_format_output/"])
+sys.argv.extend(['--use-depth', "1"])
+sys.argv.extend(['--use_rgb', "1"])
+sys.argv.extend(['--epochs', "30"])
+sys.argv.extend(['--outdir', "training_network/models"])
+sys.argv.extend(['--logdir', "training_network/log"])
+sys.argv.extend(['--description', "ahhhh?"])
+sys.argv.extend(['--vis'])
+# sys.argv.extend(['--batch-size', "1"])
+# sys.argv.extend(['--batches-per-epoch', '1'])
+# sys.argv.extend(['--val-batches', '1'])
+
+
+# sys.argv.extend(['--network', "ggcnn2"])
+# sys.argv.extend(['--dataset', "jacquard"])
+# sys.argv.extend(['--dataset-path', "/home/larissa/DATASETS/Jacquard"])
+# sys.argv.extend(['--use-depth', "1"])
+# sys.argv.extend(['--use_rgb', "1"])
+# sys.argv.extend(['--epochs', "30"])
+# sys.argv.extend(['--outdir', "training_network/models"])
+# sys.argv.extend(['--logdir', "training_network/log"])
+# sys.argv.extend(['--description', "ahhhhh2"])
+# sys.argv.extend(['--vis'])
+# sys.argv.extend(['--batches-per-epoch', '1'])
+# sys.argv.extend(['--val-batches', '1'])
+# sys.argv.extend(['--batch-size', "1"])
 
 if __name__ == '__main__':
     run()

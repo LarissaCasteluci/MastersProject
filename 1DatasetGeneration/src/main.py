@@ -12,15 +12,16 @@ if __name__ == "__main__":
     urdf_files: List[str] = glob.glob(str(path_assets) + '/*_docker.urdf')
     urdf_files.sort()
     n_files: int = len(urdf_files)
+    number_of_samples = 5
 
     processes = []
     for n, urdf_path in enumerate(urdf_files):
 
         obj_name: str = Path(urdf_path).stem[:2]
 
-        for repeat in range(5):
+        for repeat in range(number_of_samples):
             process = subprocess.Popen(f'cd /home/larissa/MastersProject && '\
-                                        'docker run --rm'\
+                                        'docker run --rm '\
                                         '--user $(id -u):$(id -g) '\
                                         '--volume "$(pwd)/original_repos/kubric:/kubric" '\
                                         '--volume "$(pwd)/1DatasetGeneration:/1DatasetGeneration" '\
@@ -29,16 +30,17 @@ if __name__ == "__main__":
                                        shell=True,
                                        stdout=subprocess.PIPE)
 
-            #process.wait()
-            #break
+            # process.wait()
+            # break
             processes.append(process)
 
-        #break
+        # break
 
         if (n + 1) % 3 == 0:
             for p in processes:
                 p.wait()
 
+            # break
             processes = []
 
 

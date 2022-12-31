@@ -155,8 +155,8 @@ class ArtificialDatasetGeneration:
         if os.path.isdir(path_name):
             shutil.rmtree(path_name)
 
-        #frame = self.renderer.render(return_layers=("rgba", "depth", "segmentation"))
-        frame = self.renderer.render()
+        frame = self.renderer.render(return_layers=("rgba", "depth", "segmentation"))
+        #frame = self.renderer.render()
         kb.write_image_dict(frame, path_name)
 
         self.renderer.save_state(path_name + "/test.blend")

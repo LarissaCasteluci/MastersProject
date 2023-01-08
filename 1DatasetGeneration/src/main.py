@@ -17,6 +17,9 @@ if __name__ == "__main__":
     processes = []
     for n, urdf_path in enumerate(urdf_files):
 
+        if n < 20:
+            continue
+
         obj_name: str = Path(urdf_path).stem[:2]
 
         for repeat in range(number_of_samples):
@@ -35,6 +38,7 @@ if __name__ == "__main__":
             processes.append(process)
 
         # break
+
 
         if (n + 1) % 3 == 0:
             for p in processes:

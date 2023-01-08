@@ -8,6 +8,7 @@ from typing import List
 import shutil
 from PIL import Image
 
+
 class CSVWriter:
     def __init__(self, path: str):
         if not os.path.isfile(path):
@@ -21,6 +22,19 @@ class CSVWriter:
             csv_writer.writerow(data)
 
 
+class MetaDataSave:
+    def __init__(self, save_path: str, obj_name: str, repeat: str):
+        self.save_path = save_path
+        self.obj_name = obj_name
+        self.repeat = repeat
+
+        self.csv_writer = CSVWriter(save_path + f"/{repeat}_{obj_name}_metadata.txt")
+
+    def save_obj_pos_and_quat(self, pos, quat):
+        # x, y, z, qo, q1, q2, q3
+        self.csv_writer.append([pos[0], pos[1], pos[2], quat[0], quat[1], quat[2], quat[3]])
+
+
 class JacquardDataExporter(BaseDataExporter):
     objects_id: list[int]
     save_path: str
@@ -32,6 +46,11 @@ class JacquardDataExporter(BaseDataExporter):
         self.repeat = repeat
 
         self.csv_writer = CSVWriter(save_path + f"/{repeat}_{obj_name}_grasps.txt" )
+
+    def save_meyadata(self, data: List[float]):
+        # According to jacquard dataset, the grasp data must be:
+        # x;y;theta in degrees;opening;jaws size;
+        self.csv_writer.append(data)
 
     def save_images(self):
         # Copy images to final dataset

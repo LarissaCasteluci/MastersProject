@@ -11,7 +11,7 @@ import sys
 
 from stereo_matching import StereoMatching
 from artificial_dataset_generation import ArtificialDatasetGeneration
-from dataset_generation_tools.data_exporters.jacquard_format import JacquardDataExporter
+from dataset_generation_tools.data_exporters.jacquard_format import JacquardDataExporter, MetaDataSave
 from dataset_generation_tools.grasp_proposal_generator.proposal_generator import ProposalGenerator, TypesGenerator
 from dataset_generation_tools.base_data_structures.camera_conversions import camera2world_coordinates, world2camera_coordinates
 
@@ -34,20 +34,17 @@ def pipeline(obj_name: str, repeat: int):
     Path(out_path).mkdir(parents=True, exist_ok=True)
 
     Exporter = JacquardDataExporter(out_path, obj_name, repeat)
+    metadata = MetaDataSave(out_path, obj_name, repeat)
 
     # 2. Loading the new objects from the assets folder
     DatasetGen.calculate_new_pos_and_quat()
     DatasetGen.add_grasping_object(obj_name)
-
     DatasetGen.move_until_no_overlap()
 
-    # Load Auxiliary Classes
-    # GraspProposal = ProposalGenerator(TypesGenerator.RANDOM, max_proposals=100)
-    # grasps = GraspProposal.generate_proposals(resolution)
+    DatasetGen.save_obj_pos_and_quat() # Save object position and Quaternion
 
-    DatasetGen.save_obj_pos_and_quat()
     GraspProposal = ProposalGenerator(TypesGenerator.GAUSSIAN,
-                                      max_proposals=5)
+                                      max_proposals=100)
     obj_pos_in_image = world2camera_coordinates(resolution, (4, 4), DatasetGen.grasping_object_pos)
 
     grasps = GraspProposal.generate_proposals(resolution,
@@ -67,10 +64,16 @@ def pipeline(obj_name: str, repeat: int):
     stereo_matching = StereoMatching(path + "/camera1/rgba_00004.png",
                                      path + "/camera2/rgba_00004.png")
 
-    stereo_matching.generate_stereo_image(str(src_folder.parent / "outputs" / "jacquard_format_output" / f"{obj_name}" / f"{repeat}_{obj_name}_stereo_depth.tiff"))
-    Exporter.save_images()
+    stereo_matching.generate_stereo_image(str(src_folder.parent /
+                                              "outputs" /
+                                              "jacquard_format_output" /
+                                              f"{obj_name}" /
+                                              f"{repeat}_{obj_name}_stereo_depth.tiff"))
 
-    DatasetGen.save_obj_pos_and_quat()
+    Exporter.save_images()
+    metadata.save_obj_pos_and_quat(DatasetGen.grasping_object_pos,
+                                   DatasetGen.grasping_object_quat)
+
     DatasetGen.remove_grasping_object()
 
     # Save grasping object position
@@ -92,7 +95,7 @@ def pipeline(obj_name: str, repeat: int):
 
         # Use the Exporter to save the data to the correct folder
         if is_grasp_sucessfull:
-            Exporter.save_grasps([grasp.x, (1024 - grasp.y), grasp.theta, 400.0, 400.0])
+            Exporter.save_grasps([(1024 - grasp.x), 1024 - grasp.y, grasp.theta*180, 400.0, 400.0])
 
 
 

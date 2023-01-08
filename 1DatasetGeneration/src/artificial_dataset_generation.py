@@ -63,9 +63,9 @@ class ArtificialDatasetGeneration:
 
 
     def calculate_new_pos_and_quat(self):
-        self.grasping_object_pos = [3.5 - 3*self.rng.random(),
-                                    3.5 - 3*self.rng.random(),
-                                    2]
+        self.grasping_object_pos = [3 - 2*self.rng.random(),
+                                    3 - 2*self.rng.random(),
+                                    0.6]
 
         self.grasping_object_quat = [self.rng.random(),
                                      self.rng.random(),

@@ -1,5 +1,6 @@
 import datetime
 import os
+import pdb
 import sys
 import argparse
 import logging
@@ -182,9 +183,10 @@ def train(epoch, net, device, train_data, optimizer, batches_per_epoch, vis=Fals
                           (0.0, 1.0),
                           (-1.0, 1.0),
                           (0.0, 1.0)] * 2 * n_img,
-                         [cv2.COLORMAP_BONE] * 10 * n_img,
+                         [cv2.COLORMAP_BONE] * 2 * n_img,
                          10)
                 cv2.waitKey(2)
+
 
     results['loss'] /= batch_idx
     for l in results['losses']:
@@ -217,8 +219,8 @@ def run():
                             start=0.0,
                             end=args.split,
                             ds_rotate=args.ds_rotate,
-                            random_rotate=True,
-                            random_zoom=True,
+                            random_rotate=False,
+                            random_zoom=False,
                             include_depth=args.use_depth,
                             include_rgb=args.use_rgb)
 
@@ -300,10 +302,10 @@ sys.argv.extend(['--dataset', "jacquard"])
 sys.argv.extend(['--dataset-path', "/home/larissa/MastersProject/1DatasetGeneration/outputs/jacquard_format_output/"])
 sys.argv.extend(['--use-depth', "1"])
 sys.argv.extend(['--use_rgb', "1"])
-sys.argv.extend(['--epochs', "30"])
+sys.argv.extend(['--epochs', "5"])
 sys.argv.extend(['--outdir', "training_network/models"])
 sys.argv.extend(['--logdir', "training_network/log"])
-sys.argv.extend(['--description', "ahhhh?"])
+sys.argv.extend(['--description', "is_this_the_one?"])
 sys.argv.extend(['--vis'])
 # sys.argv.extend(['--batch-size', "1"])
 # sys.argv.extend(['--batches-per-epoch', '1'])
